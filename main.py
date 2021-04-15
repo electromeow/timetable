@@ -25,7 +25,13 @@ timeregex = r'(([01][0123456789])|(\d)|([2][0123]))[:.]([012345]\d)'
 characterSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.1234567890"
 
 def getDayTime(option):
-    a = [dt.utcnow().weekday(), "t"+str(dt.utcnow().hour) + "_" + str(dt.utcnow().minute)]
+    hour = str(dt.utcnow().hour)
+    if len(hour)<2:
+        hour = '0'+hour
+    minute = str(dt.utcnow().minute)
+    if len(minute)<2:
+        minute = '0'+minute
+    a = [dt.utcnow().weekday(), "t" + hour + "_" + minute]
     if option == "day":
         return a[0]
     elif option == "time":
@@ -161,14 +167,22 @@ async def timetable(ctx):
     global db
     await ctx.channel.send("""Can you enter the times(in UTC) in your timetable seperated with commas? For example:
 `09:00,09:40,10:20`""")
-    ttLessontimes = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        ttLessontimes = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     ttLessontimes = ttLessontimes.content.replace(':', '_').replace('.', '_').split(",")
     ttLessontimes = list(map(lambda x: x.strip(), ttLessontimes))
 
     await ctx.channel.send("""Now you will enter the events on your timetable in order of times you entered for each day of the week.
 You will pass "nope" for blank times. If you don't have any events on that day, you will pass a "nope".
 First enter the events that you have on mondays:""")
-    monday = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        monday = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     if monday.content.lower() == "nope":
         monday = len(ttLessontimes)*["nope"]
     else:
@@ -186,7 +200,11 @@ First enter the events that you have on mondays:""")
     monday = pd.DataFrame([monday], columns=ttLessontimes)
 
     await ctx.channel.send("""Enter the events that you have on tuesdays:""")
-    tuesday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        tuesday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     if tuesday.content.lower() == "nope":
         tuesday = len(ttLessontimes)*["nope"]
     else:
@@ -202,7 +220,11 @@ First enter the events that you have on mondays:""")
     tuesday = pd.DataFrame([tuesday], columns=ttLessontimes)
 
     await ctx.channel.send("""Enter the events that you have on wednesdays:""")
-    wednesday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        wednesday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     if wednesday.content.lower() == "nope":
         wednesday = len(ttLessontimes) * ["nope"]
     else:
@@ -218,7 +240,11 @@ First enter the events that you have on mondays:""")
     wednesday = pd.DataFrame([wednesday], columns=ttLessontimes)
 
     await ctx.channel.send("""Enter the events that you have on thursdays:""")
-    thursday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        thursday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     if thursday.content.lower() == "nope":
         thursday = len(ttLessontimes) * ["nope"]
     else:
@@ -234,7 +260,11 @@ First enter the events that you have on mondays:""")
     thursday = pd.DataFrame([thursday], columns=ttLessontimes)
 
     await ctx.channel.send("""Enter the events that you have on fridays:""")
-    friday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        friday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     if friday.content.lower() == "nope":
         friday = len(ttLessontimes) * ["nope"]
     else:
@@ -250,7 +280,11 @@ First enter the events that you have on mondays:""")
     friday = pd.DataFrame([friday], columns=ttLessontimes)
 
     await ctx.channel.send("""Enter the events that you have on saturdays:""")
-    saturday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        saturday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     if saturday.content.lower() == "nope":
         saturday = len(ttLessontimes) * ["nope"]
     else:
@@ -266,7 +300,11 @@ First enter the events that you have on mondays:""")
     saturday = pd.DataFrame([saturday], columns=ttLessontimes)
 
     await ctx.channel.send("""Enter the events that you have on sundays:""")
-    sunday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        sunday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     if sunday.content.lower() == "nope":
         sunday = len(ttLessontimes) * ["nope"]
     else:
@@ -283,10 +321,23 @@ First enter the events that you have on mondays:""")
 
     timetable = pd.concat([monday, tuesday, wednesday, thursday, friday, saturday, sunday], ignore_index=True)
     print(timetable)
+    def formattime(time):
+        hour = str(time).split('_')[0]
+        minute = str(time).split('_')[1]
+        if len(hour) < 2:
+            hour = '0'+hour
+        if len(minute) < 2:
+            minute = '0'+minute
+        return hour+'_'+minute
+    timetable.columns = list(map(formattime, timetable.columns))
 
     await ctx.channel.send("Mention or enter the id of the channel for notifications:")
     while True:
-        notificationChannel = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+        try:
+            notificationChannel = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+        except asyncio.TimeoutError:
+            await ctx.channel.send("Command has canceled due to timeout.")
+            return
         notificationChannel = int(notificationChannel.content.split()[0].strip('<').strip('>').strip('#'))
         try:
             testChannel = await bot.fetch_channel(notificationChannel)
@@ -300,11 +351,19 @@ First enter the events that you have on mondays:""")
             await ctx.channel.send("I don't have the permission to access or send message this channel or to delete messages from this channel.\nTry with another channel or give me the permission to access and send messages to that channel, then try again:")
 
     await ctx.channel.send("Mention the people or roles to inform, they will be mentioned when an event has started:")
-    getmention = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        getmention = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     mention = getmention.content
 
     await ctx.channel.send("Lastly enter a password for your timetable that others can't change it. You can also send it as a spoiler. Message will be immediately deleted.")
-    getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     password = getpassword.content.strip("||").strip()
     try:
         await getpassword.delete()
@@ -351,7 +410,11 @@ async def delete(ctx, tid):
     global db
     realPassword = db.getTableInfos(tid)["password"]
     await ctx.channel.send("Enter password for this timetable:")
-    getpassword = await bot.wait_for('message', check=lambda m: m.author==ctx.author and m.channel == ctx.channel)
+    try:
+        getpassword = await bot.wait_for('message', check=lambda m: m.author==ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     password = getpassword.content.strip("||").strip()
     try:
         await getpassword.delete()
@@ -372,7 +435,11 @@ async def changemention(ctx, tid, *mentions):
     realPassword = tableInfos["password"]
     channelid = tableInfos["channel"]
     await ctx.channel.send("Enter password for this timetable:")
-    getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     password = getpassword.content.strip("||").strip()
     try:
         await getpassword.delete()
@@ -396,7 +463,11 @@ async def changechannel(ctx, tid, channel):
     realPassword = tableInfos["password"]
     mention = tableInfos["mention"]
     await ctx.channel.send("Enter password for this timetable:")
-    getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     password = getpassword.content.strip("||").strip()
     try:
         await getpassword.delete()
@@ -418,7 +489,11 @@ async def changepassword(ctx, tid):
     realPassword = tableInfos["password"]
     mention = tableInfos["mention"]
     await ctx.channel.send("Enter password for this timetable:")
-    getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+    try:
+        getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+    except asyncio.TimeoutError:
+        await ctx.channel.send("Command has canceled due to timeout.")
+        return
     password = getpassword.content.strip("||").strip()
     try:
         await getpassword.delete()
@@ -426,7 +501,11 @@ async def changepassword(ctx, tid):
         await ctx.channel.send("I don't have the permission to delete messages on this channel.")
     if password == realPassword:
         await ctx.channel.send("PLease enter the new password:")
-        getnewpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+        try:
+            getnewpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
+        except asyncio.TimeoutError:
+            await ctx.channel.send("Command has canceled due to timeout.")
+            return
         newpassword = getnewpassword.content
         await getnewpassword.delete()
         db.changeTableInfo(tid, channelid, newpassword, mention)
@@ -491,26 +570,34 @@ async def reminder(ctx, cmd, *args):
     cmand = cmd.lower().strip()
     params = ' '.join(args)
     if cmand == "create" or cmand == "add":
-        channelId = re.search(r'[<][#]([0-9]{18})[>]', params).group().strip('<').strip('>').strip('#')
+        try:
+            channelId = re.search(r'[<][#]([0-9]{18})[>]', params).group().strip('<').strip('>').strip('#')
+        except AttributeError:
+            await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format.")
+            return
         if "today" in params:
             reminderDate = getDate()
         elif "tomorrow" in params:
             reminderDate = getDate("tomorrow")
         else:
             result = None
-            result = re.search(hugeregex, params).group()
+            try:
+                result = re.search(hugeregex, params).group()
+            except AttributeError:
+                await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format.")
+                return
             if result != None:
                 result = result.replace('/', '-').replace('.', '-').split('-')
                 result[0] = result[0].lstrip('0')
                 result[1] = result[1].lstrip('0')
                 reminderDate = '-'.join(result)
             elif result == None:
-                await ctx.channel.send("I can't see a valid date in this command.")
+                await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format.")
                 return
         searchTime = None
         searchTime = re.search(timeregex, params).group()
         if searchTime == None:
-            await ctx.channel.send("I can't see a valid time in this command.")
+            await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format.")
             return
         elif searchTime != None:
             reminderTime = searchTime.replace(':', '_').replace('.', '_')

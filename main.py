@@ -22,7 +22,7 @@ botUserId = "789202881336311849"
 ownerId = 754327007331876945
 hugeregex = r'(((([012]\d)|(\d)|(30))[/.-](([0][469])|([1][1])))|((([012]\d)|(\d)|(3[01]))[/.-](([0][13578])|([1][02])))|((([01]\d)|(\d)|([2][012345678]))[/.-]((02)|(2))))[/.-]((20[2][123456789])|(20[3456789]\d))'
 timeregex = r'(([01][0123456789])|(\d)|([2][0123]))[:.]([012345]\d)'
-characterSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.1234567890"
+characterSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.1234567890_"
 
 def getDayTime(option):
     hour = str(dt.utcnow().hour)
@@ -161,6 +161,30 @@ async def token(ctx):
     for i in range(59):
         faketoken = faketoken + rd.choice(characterSet)
     await ctx.channel.send(f"Here is my token:\n{faketoken}")
+
+@bot.command()
+async def invite(ctx):
+    await ctx.channel.send(
+    embed=discord.Embed(title="Loved Timetable? Then invite it to other servers!",
+    description="Invite link can be found at:\n\
+[top.gg](https://top.gg/bot/789202881336311849) (waiting to be verified)\n\
+[bots.gg](https://discord.bots.gg/bots/789202881336311849) (waiting to be verified)\n\
+[DiscordBotList](https://discordbotlist.com/bots/timetable)\n\
+[Discord Boats](https://discord.boats/bot/789202881336311849)",
+    colour=0xACB6C4))
+
+@bot.command()
+async def vote(ctx):
+    await ctx.channel.send(
+    embed=discord.Embed(title="Loved Timetable? Then vote it to support!",
+    description="Our heart would wish that you voted in both bot lists,\n\
+but your vote on top.gg would be enough.\n\
+[top.gg](https://top.gg/bot/789202881336311849/vote) (waiting to be verified)\n\
+[DiscordBotList](https://discordbotlist.com/bots/timetable/upvote)\n\
+[Discord Boats](https://discord.boats/bot/789202881336311849/vote)\n\
+**We don't earn money from your votes!**",
+colour=0xACB6C4
+))
 
 @bot.command()
 async def timetable(ctx):

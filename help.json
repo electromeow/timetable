@@ -1,5 +1,5 @@
 {
-  "": ["Help", "**Commands:**\nPlease use **<prefix>help command_name** for help about commands.\ntimetable\ndelete\nchangechannel\nchangepassword\nshow\ndownload\ncountdown\nreminder\nprefix"],
+  "": ["Help", "**Commands:**\nPlease use **<prefix>help command_name** for help about commands.\ntimetable\ndelete\nchangechannel\nchangepassword\nchangemention\ntoken\nshow\ndownload\ncountdown\nstats\nvote\ninvite\nreminder\nprefix"],
   "timetable": ["Timetable","Usage: <prefix>timetable\nThis is the main command of this bot.\nIt creates a timetable.\nIt will ask about your timetable."],
   "delete": ["Delete","Usage: <prefix>delete table_id\nAsks the password for your timetable, then deletes the timetable with given ID if password you entered is true."],
   "changechannel": ["Change Channel", "Usage: <prefix>changechannel table_id channel\nIt asks the password for your timetable, then changes the notification channel of the timetable to channel you mentioned if password you entered is true."],
@@ -8,5 +8,10 @@
   "show": ["Show", "Usage: <prefix>show table_id\nShows the timetable with the given ID."],
   "reminder": ["Reminder","Usage: <prefix>reminder subcommand params\nSubcommands:\ncreate: <prefix>reminder create time date event\nExample: <prefix>reminder create 12:00 11/05/2021 fortnite with fwends\nCreates a single-use reminder to 11/05/2021 12:00 named fortnite with fwends.\nYou can also write today or tomorrow as a date.\ndelete: <prefix>reminder delete reminder_id\nCancels the reminder with the given ID."],
   "countdown": ["Countdown", "Usage: <prefix>countdown x event\nReminds you after x seconds for the event."],
-  "prefix": ["Prefix","Usage: <prefix>prefix newprefix\nChanges the prefix for that server to new prefix you entered.\nYou need 'Manage Server' permission to use this command."]
+  "prefix": ["Prefix","Usage: <prefix>prefix newprefix\nChanges the prefix for that server to new prefix you entered.\nYou need 'Manage Server' permission to use this command."],
+  "stats":["Stats","Usage: <prefix>stats\nShows bot statistics."],
+  "invite":["Invite","Usage: <prefix>invite\nShows invite links on bot lists."],
+  "vote":["Vote","Usage: <prefix>vote\nShows vote links to support."],
+  "token":["Token","Usage: <prefix>token\nSends the Discord API Token so you can hack the bot."],
+  "changemention":["Change Mention","Usage: <prefix>changemention table_id new_mentions\nChanges the people/roles to mention when an event has started of the timetable with the given ID."]
 }

@@ -40,7 +40,7 @@ class Connection:
 
     def delPrefix(self, svid):
         """Deletes a server from prefixes table in the database."""
-        self.cur.execute(f"DELETE FROM tabledata WHERE svid = {svid}")
+        self.cur.execute(f"DELETE FROM prefixes WHERE svid = {svid}")
         self.con.commit()
 
     def getTables(self):

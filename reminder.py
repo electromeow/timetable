@@ -42,7 +42,7 @@ Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/m
                 result[1] = result[1].lstrip('0')
                 reminderDate = '-'.join(result)
             elif result == None:
-                await ctx.channel.send((embed=discord.Embed(
+                await ctx.channel.send(embed=discord.Embed(
                 description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
 Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
 Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\

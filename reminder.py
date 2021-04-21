@@ -15,7 +15,11 @@ async def reminder(ctx, cmd, args, bot, db, getDate, getDayTime, get_prefix):
         try:
             channelId = re.search(r'[<][#]([0-9]{18})[>]', params).group().strip('<').strip('>').strip('#')
         except AttributeError:
-            await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format and in UTC/GMT timezone.\nDon't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.")
+            await ctx.channel.send(embed=discord.Embed(
+            description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
+Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
+Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
+Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn."))
             return
         if "today" in params:
             reminderDate = getDate()
@@ -26,7 +30,11 @@ async def reminder(ctx, cmd, args, bot, db, getDate, getDayTime, get_prefix):
             try:
                 result = re.search(hugeregex, params).group()
             except AttributeError:
-                await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format and in UTC/GMT timezone.\nDon't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.")
+                await ctx.channel.send(embed=discord.Embed(
+                description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
+Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
+Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
+Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn."))
                 return
             if result != None:
                 result = result.replace('/', '-').replace('.', '-').split('-')
@@ -34,12 +42,20 @@ async def reminder(ctx, cmd, args, bot, db, getDate, getDayTime, get_prefix):
                 result[1] = result[1].lstrip('0')
                 reminderDate = '-'.join(result)
             elif result == None:
-                await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format and in UTC/GMT timezone.\nDon't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.")
+                await ctx.channel.send((embed=discord.Embed(
+                description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
+Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
+Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
+Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn."))
                 return
         searchTime = None
         searchTime = re.search(timeregex, params).group()
         if searchTime == None:
-            await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format and in UTC/GMT timezone.\nDon't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.")
+            await ctx.channel.send(embed=discord.Embed(
+            description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
+Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
+Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
+Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn."))
             return
         elif searchTime != None:
             reminderTime = searchTime.replace(':', '_').replace('.', '_')

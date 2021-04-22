@@ -391,4 +391,33 @@ async def prefix(ctx, pf=""):
     else:
         await ctx.channel.send("I think you don't have the permission to do that. Pick that 'Manage Server' permission, then maybe.")
 
+@bot.command()
+async def next(ctx, tid):
+    global db
+    tableDf = db.getTable(tid)
+    timestamps = list(map(
+        lambda x: (dt.strptime(x+f" {dt.utcnow().year}_{('0' if len(str(dt.utcnow().month))<2 else '')+str(dt.utcnow().month)}_{('0' if len(str(dt.utcnow().day))<2 else '')+str(dt.utcnow().day)}",
+        "t%H_%M %Y_%m_%d")).timestamp(),
+        tableDf.columns))
+    print(timestamps)
+    print(dt.utcnow().timestamp())
+    try:
+        nexttime = min(list(filter(lambda x: x>dt.utcnow().timestamp(), timestamps)))
+    except ValueError:
+        await ctx.channel.send("You don't have an event on your timetable today.")
+        return
+    nextlesson = tableDf.at[dt.utcnow().weekday(), dt.fromtimestamp(nexttime).strftime("t%H_%M")]
+    await ctx.channel.send(embed=discord.Embed(
+        title="Your Next Event Today",
+        description=f"Next event today on your timetable is: {nextlesson}\n\
+It begins at {dt.fromtimestamp(nexttime).strftime('%H:%M.')} UTC\n\
+You have {int((nexttime-dt.utcnow().timestamp())//(60*60)) if (nexttime-dt.utcnow().timestamp())//(60*60) > 0 else ''} \
+{'hours, ' if (nexttime-dt.utcnow().timestamp())//(60*60)>1 else ''}\
+{'hour, ' if (nexttime-dt.utcnow().timestamp())//(60*60) == 1 else ''}\
+{int(((nexttime-dt.utcnow().timestamp())-((nexttime-dt.utcnow().timestamp())//(60*60)))//60)} \
+{'minutes' if ((nexttime-dt.utcnow().timestamp())-((nexttime-dt.utcnow().timestamp())//(60*60)))//60 > 1 else 'minute'}\
+ before it begins.",
+        colour=0xACB6C4))
+
+
 bot.run(TOKEN)

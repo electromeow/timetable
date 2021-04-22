@@ -1,5 +1,5 @@
 {
-  "": ["Help", "**Commands:**\nPlease use **<prefix>help command_name** for help about commands.\ntimetable\ndelete\nchangechannel\nchangepassword\nchangemention\ntoken\nshow\ndownload\ncountdown\nstats\nvote\ninvite\nreminder\nprefix"],
+  "": ["Help", "**Commands:**\nPlease use **<prefix>help command_name** for help about commands.\ntimetable\ndelete\nchangechannel\nchangepassword\nchangemention\nnext\ntoken\nshow\ndownload\ncountdown\nstats\nvote\ninvite\nreminder\nprefix"],
   "timetable": ["Timetable","Usage: <prefix>timetable\nThis is the main command of this bot.\nIt creates a timetable.\nIt will ask about your timetable."],
   "delete": ["Delete","Usage: <prefix>delete table_id\nAsks the password for your timetable, then deletes the timetable with given ID if password you entered is true."],
   "changechannel": ["Change Channel", "Usage: <prefix>changechannel table_id channel\nIt asks the password for your timetable, then changes the notification channel of the timetable to channel you mentioned if password you entered is true."],
@@ -13,5 +13,6 @@
   "invite":["Invite","Usage: <prefix>invite\nShows invite links on bot lists."],
   "vote":["Vote","Usage: <prefix>vote\nShows vote links to support."],
   "token":["Token","Usage: <prefix>token\nSends the Discord API Token so you can hack the bot."],
-  "changemention":["Change Mention","Usage: <prefix>changemention table_id new_mentions\nChanges the people/roles to mention when an event has started of the timetable with the given ID."]
+  "changemention":["Change Mention","Usage: <prefix>changemention table_id new_mentions\nChanges the people/roles to mention when an event has started of the timetable with the given ID."],
+  "next":["Next", "Usage: <prefix>next table_id\nShows the next event, when it begins and how much time left before it begins on your timetable today."]
 }

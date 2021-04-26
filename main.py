@@ -69,7 +69,10 @@ def get_prefix_tuple(client, message):
 
 
 def get_prefix(client, message):
-    return db.getPrefix(message.guild.id)
+    try:
+        return db.getPrefix(message.guild.id)
+    except:
+        await message.add_reaction('⏱')
 
 async def runReminders():
     global db
@@ -193,7 +196,9 @@ async def show(ctx, tableid=None):
     if tableid=='' or tableid==None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}show table_id\n\
-Table ID must be a timetable's ID."))
+Table ID must be a timetable's ID.",
+        colour=0xACB6C4
+        ))
         return
     try:
         tableDf = db.getTable(tableid)
@@ -227,7 +232,8 @@ async def delete(ctx, tid=None):
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}delete table_id\n\
-Table ID must be a timetable's ID."
+Table ID must be a timetable's ID.",
+        colour=0xACB6C4
         ))
         return
     try:
@@ -260,7 +266,8 @@ async def changemention(ctx, tid=None, *mentions):
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}changemention table_id mentions\n\
 Table ID must be a timetable's ID.\n\
-Mentions should be a series of roles/users' mentions. You can make it blank by sending a blank message like this: \* *."
+Mentions should be a series of roles/users' mentions. You can make it blank by sending a blank message like this: \* *.",
+        colour=0xACB6C4
         ))
         return
     mention = ' '.join(mentions)
@@ -297,10 +304,11 @@ async def changechannel(ctx, tid=None, channel=None):
     global db
     if tid == '' or tid == None or channel == '' or channel == None:
         await ctx.channel.send(embed=discord.Embed(
-        description=f"Usage: {get_prefix(None,message)}changechannel table_id channel\n\
+        description=f"Usage: {get_prefix(None,ctx)}changechannel table_id channel\n\
 Table ID must be a timetable ID.\n\
 Channel must be a channel's mention or ID.\n\
-Both two parameters are required."
+Both two parameters are required.",
+        colour=0xACB6C4
         ))
         return
     channelid = int(channel.strip('<').strip('>').strip('#'))
@@ -336,7 +344,8 @@ async def changepassword(ctx, tid=None):
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}changepassword table_id\n\
-Table ID must be a timetable's ID."
+Table ID must be a timetable's ID.",
+        colour=0xACB6C4
         ))
         return
     try:
@@ -380,7 +389,8 @@ async def download(ctx, tid=None):
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}download table_id\n\
-Table ID must be a timetable's ID"
+Table ID must be a timetable's ID",
+        colour=0xACB6C4
         ))
         return
     try:
@@ -418,7 +428,7 @@ async def runcode(ctx, code):
             err = e
         endTime = time.time()
         executionTime = endTime-startTime
-        responseEmbed = discord.Embed(title="Eval")
+        responseEmbed = discord.Embed(title="Eval",colour=0xACB6C4)
         if err is not None:
             responseEmbed.add_field(name="Error", value=f"```{str(err)}```")
         if resp is not None:
@@ -433,20 +443,21 @@ async def countdown(ctx, seconds=None, *name):
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None, ctx)}countdown x event_name\n\
 x must be a number of seconds.\n\
-Event name should be a proper event name."
+Event name should be a proper event name.",
+        colour=0xACB6C4
         ))
-        return
-    if seconds > (24*60*60):
-        await ctx.channel.send("You can't countdown more than a day. Instead use reminders.")
-        return
-    eventname = ' '.join(name)
-    if eventname == '' or eventname.isspace():
-        await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}countdown amount(seconds) event_name")
         return
     try:
         secs = int(seconds)
     except:
         await ctx.channel.send("I can't wait for a NotANumber of seconds.")
+        return
+    if secs > (24*60*60):
+        await ctx.channel.send("You can't countdown more than a day. Instead use reminders.")
+        return
+    eventname = ' '.join(name)
+    if eventname == '' or eventname.isspace():
+        await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}countdown amount(seconds) event_name")
         return
     await asyncio.sleep(secs)
     await ctx.channel.send(f"Hey <@!{ctx.author.id}> , it's time for {eventname}.")
@@ -478,7 +489,8 @@ async def next(ctx, tid=None):
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None, ctx)}next table_id\n\
-Table ID must be a timetable's ID."
+Table ID must be a timetable's ID.",
+        colour=0xACB6C4
         ))
         return
     try:

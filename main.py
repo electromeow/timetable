@@ -190,7 +190,7 @@ async def timetable(ctx):
 @bot.command()
 async def show(ctx, tableid=None):
     global db
-    if tableid=='' or tableid.isspace() or tableid==None:
+    if tableid=='' or tableid==None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}show table_id\n\
 Table ID must be a timetable's ID."))
@@ -224,7 +224,7 @@ async def help(ctx, helpTopic=""):
 @bot.command()
 async def delete(ctx, tid=None):
     global db
-    if tid == '' or tid.isspace() or tid == None:
+    if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}delete table_id\n\
 Table ID must be a timetable's ID."
@@ -256,7 +256,7 @@ Table ID must be a timetable's ID."
 @bot.command()
 async def changemention(ctx, tid=None, *mentions):
     global db
-    if tid == None or tid == '' or tid.isspace():
+    if tid == None or tid == '':
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}changemention table_id mentions\n\
 Table ID must be a timetable's ID.\n\
@@ -295,7 +295,7 @@ Mentions should be a series of roles/users' mentions. You can make it blank by s
 @bot.command()
 async def changechannel(ctx, tid=None, channel=None):
     global db
-    if tid == '' or tid == None or tid.isspace() or channel == '' or channel == None or channel.isspace():
+    if tid == '' or tid == None or channel == '' or channel == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,message)}changechannel table_id channel\n\
 Table ID must be a timetable ID.\n\
@@ -333,7 +333,7 @@ Both two parameters are required."
 @bot.command()
 async def changepassword(ctx, tid=None):
     global db
-    if tid == '' or tid == None or tid.isspace():
+    if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}changepassword table_id\n\
 Table ID must be a timetable's ID."
@@ -377,7 +377,7 @@ Table ID must be a timetable's ID."
 @bot.command()
 async def download(ctx, tid=None):
     global db
-    if tid == '' or tid == None or tid.isspace():
+    if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}download table_id\n\
 Table ID must be a timetable's ID"
@@ -429,7 +429,7 @@ async def runcode(ctx, code):
 
 @bot.command()
 async def countdown(ctx, seconds=None, *name):
-    if seconds == '' or seconds == None or seconds.isspace() or name == tuple():
+    if seconds == '' or seconds == None or name == tuple():
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None, ctx)}countdown x event_name\n\
 x must be a number of seconds.\n\
@@ -475,7 +475,7 @@ async def prefix(ctx, pf=""):
 @bot.command()
 async def next(ctx, tid=None):
     global db
-    if tid == '' or tid == None or tid.isspace():
+    if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None, ctx)}next table_id\n\
 Table ID must be a timetable's ID."

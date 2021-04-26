@@ -188,13 +188,24 @@ async def timetable(ctx):
 
 
 @bot.command()
-async def show(ctx, tableid):
+async def show(ctx, tableid=None):
     global db
+    if tableid=='' or tableid.isspace() or tableid==None:
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Usage: {get_prefix(None,ctx)}show table_id\n\
+Table ID must be a timetable's ID."))
+        return
     try:
         tableDf = db.getTable(tableid)
         tableDf.columns = list(map(lambda x: x.strip('t'),tableDf.columns))
         tableDf.index = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-        await ctx.channel.send(embed=discord.Embed(title=f"Timetable {tableid}", description=f"```\n{tableDf.replace('nope','')}\n```",color=0xACB6C4))
+        await ctx.channel.send(embed=discord.Embed(title=f"Timetable {tableid}",
+        description=f"```\n{tableDf.replace('nope','')}\n```",
+        color=0xACB6C4).add_field(
+        name="Warning!",
+        value="This command is still in beta. Your timetable may be showed unproperly.\n\
+It will be replaced with an image procesing method as soon as possible.\n\
+But Good News: You can use the 'next' command to look at your next upcoming event!"))
     except:
         await ctx.channel.send("I can't find a timetable with the given ID.")
 
@@ -211,9 +222,19 @@ async def help(ctx, helpTopic=""):
 
 
 @bot.command()
-async def delete(ctx, tid):
+async def delete(ctx, tid=None):
     global db
-    realPassword = db.getTableInfos(tid)["password"]
+    if tid == '' or tid.isspace() or tid == None:
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Usage: {get_prefix(None,ctx)}delete table_id\n\
+Table ID must be a timetable's ID."
+        ))
+        return
+    try:
+        realPassword = db.getTableInfos(tid)["password"]
+    except:
+        await ctx.channel.send("I can't see a timetable with that ID.")
+        return
     await ctx.channel.send("Enter password for this timetable:")
     try:
         getpassword = await bot.wait_for('message', check=lambda m: m.author==ctx.author and m.channel == ctx.channel,timeout=120)
@@ -233,10 +254,21 @@ async def delete(ctx, tid):
 
 
 @bot.command()
-async def changemention(ctx, tid, *mentions):
+async def changemention(ctx, tid=None, *mentions):
     global db
+    if tid == None or tid == '' or tid.isspace():
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Usage: {get_prefix(None,ctx)}changemention table_id mentions\n\
+Table ID must be a timetable's ID.\n\
+Mentions should be a series of roles/users' mentions. You can make it blank by sending a blank message like this: \* *."
+        ))
+        return
     mention = ' '.join(mentions)
-    tableInfos = db.getTableInfos(tid)
+    try:
+        tableInfos = db.getTableInfos(tid)
+    except:
+        await ctx.channel.send("I can't see a timetable with that ID.")
+        return
     realPassword = tableInfos["password"]
     channelid = tableInfos["channel"]
     await ctx.channel.send("Enter password for this timetable:")
@@ -261,10 +293,22 @@ async def changemention(ctx, tid, *mentions):
 
 
 @bot.command()
-async def changechannel(ctx, tid, channel):
+async def changechannel(ctx, tid=None, channel=None):
     global db
+    if tid == '' or tid == None or tid.isspace() or channel == '' or channel == None or channel.isspace():
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Usage: {get_prefix(None,message)}changechannel table_id channel\n\
+Table ID must be a timetable ID.\n\
+Channel must be a channel's mention or ID.\n\
+Both two parameters are required."
+        ))
+        return
     channelid = int(channel.strip('<').strip('>').strip('#'))
-    tableInfos = db.getTableInfos(tid)
+    try:
+        tableInfos = db.getTableInfos(tid)
+    except:
+        await ctx.channel.send("I can't see a timetable with that ID.")
+        return
     realPassword = tableInfos["password"]
     mention = tableInfos["mention"]
     await ctx.channel.send("Enter password for this timetable:")
@@ -287,9 +331,19 @@ async def changechannel(ctx, tid, channel):
 
 
 @bot.command()
-async def changepassword(ctx, tid):
+async def changepassword(ctx, tid=None):
     global db
-    tableInfos = db.getTableInfos(tid)
+    if tid == '' or tid == None or tid.isspace():
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Usage: {get_prefix(None,ctx)}changepassword table_id\n\
+Table ID must be a timetable's ID."
+        ))
+        return
+    try:
+        tableInfos = db.getTableInfos(tid)
+    except:
+        await ctx.channel.send("I can't see a timetable with that ID.")
+        return
     channelid = tableInfos["channel"]
     realPassword = tableInfos["password"]
     mention = tableInfos["mention"]
@@ -321,9 +375,19 @@ async def changepassword(ctx, tid):
 
 
 @bot.command()
-async def download(ctx, tid):
+async def download(ctx, tid=None):
     global db
-    tableDf = db.getTable(tid)
+    if tid == '' or tid == None or tid.isspace():
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Usage: {get_prefix(None,ctx)}download table_id\n\
+Table ID must be a timetable's ID"
+        ))
+        return
+    try:
+        tableDf = db.getTable(tid)
+    except:
+        await ctx.channel.send("I can't see a timetable with that ID.")
+        return
     tableDf.to_csv(f"table-{tid}.csv", sep=';', index=False)
     await ctx.channel.send(file=discord.File(f"table-{tid}.csv"))
     os.remove(f"table-{tid}.csv")
@@ -364,7 +428,14 @@ async def runcode(ctx, code):
 
 
 @bot.command()
-async def countdown(ctx, seconds, *name):
+async def countdown(ctx, seconds=None, *name):
+    if seconds == '' or seconds == None or seconds.isspace() or name == tuple():
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Usage: {get_prefix(None, ctx)}countdown x event_name\n\
+x must be a number of seconds.\n\
+Event name should be a proper event name."
+        ))
+        return
     if seconds > (24*60*60):
         await ctx.channel.send("You can't countdown more than a day. Instead use reminders.")
         return
@@ -372,12 +443,17 @@ async def countdown(ctx, seconds, *name):
     if eventname == '' or eventname.isspace():
         await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}countdown amount(seconds) event_name")
         return
-    await asyncio.sleep(int(seconds))
+    try:
+        secs = int(seconds)
+    except:
+        await ctx.channel.send("I can't wait for a NotANumber of seconds.")
+        return
+    await asyncio.sleep(secs)
     await ctx.channel.send(f"Hey <@!{ctx.author.id}> , it's time for {eventname}.")
 
 
 @bot.command()
-async def reminder(ctx, cmd, *args):
+async def reminder(ctx, cmd=None, *args):
     global db
     await reminderfile.reminder(ctx, cmd, args, bot, db, getDate, getDayTime, get_prefix)
 
@@ -386,15 +462,30 @@ async def reminder(ctx, cmd, *args):
 async def prefix(ctx, pf=""):
     global db
     if ctx.author.guild_permissions.manage_guild:
-        db.changePrefix(ctx.guild.id, pf)
-        await ctx.channel.send(f"Prefix for this server is changed to: {pf}")
+        if pf == '' or pf.isspace():
+            db.changePrefix(ctx.guild.id, '')
+            await ctx.channel.send("You can now use me without a prefix.")
+            return
+        else:
+            db.changePrefix(ctx.guild.id, pf)
+            await ctx.channel.send(f"Prefix for this server is changed to: {pf}")
     else:
         await ctx.channel.send("I think you don't have the permission to do that. Pick that 'Manage Server' permission, then maybe.")
 
 @bot.command()
-async def next(ctx, tid):
+async def next(ctx, tid=None):
     global db
-    tableDf = db.getTable(tid)
+    if tid == '' or tid == None or tid.isspace():
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Usage: {get_prefix(None, ctx)}next table_id\n\
+Table ID must be a timetable's ID."
+        ))
+        return
+    try:
+        tableDf = db.getTable(tid)
+    except:
+        await ctx.channel.send("I can't see a timetable with that ID.")
+        return
     timestamps = list(map(
         lambda x: (dt.strptime(x+f" {dt.utcnow().year}_{('0' if len(str(dt.utcnow().month))<2 else '')+str(dt.utcnow().month)}_{('0' if len(str(dt.utcnow().day))<2 else '')+str(dt.utcnow().day)}",
         "t%H_%M %Y_%m_%d")).timestamp(),

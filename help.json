@@ -13,6 +13,6 @@
   "invite":["Invite","Usage: <prefix>invite\nShows invite links on bot lists."],
   "vote":["Vote","Usage: <prefix>vote\nShows vote links to support."],
   "token":["Token","Usage: <prefix>token\nSends the Discord API Token so you can hack the bot."],
-  "changemention":["Change Mention","Usage: <prefix>changemention table_id new_mentions\nChanges the people/roles to mention when an event has started of the timetable with the given ID."],
+  "changemention":["Change Mention","Usage: <prefix>changemention table_id new_mentions\nYou can also make the mentioning people off by passing a blank parameter.\nChanges the people/roles to mention when an event has started of the timetable with the given ID."],
   "next":["Next", "Usage: <prefix>next table_id\nShows the next event, when it begins and how much time left before it begins on your timetable today."]
 }

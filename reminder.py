@@ -9,6 +9,13 @@ hugeregex = r'(((([012]\d)|(\d)|(30))[/.-](([0][469])|([1][1])))|((([012]\d)|(\d
 timeregex = r'(([01][0123456789])|(\d)|([2][0123]))[:.]([012345]\d)'
 
 async def reminder(ctx, cmd, args, bot, db, getDate, getDayTime, get_prefix):
+    if cmd=='' or cmd.isspace() or cmd == None:
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
+Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
+Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
+Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn."))
+        return
     cmand = cmd.lower().strip()
     params = ' '.join(args)
     if cmand == "create" or cmand == "add":

@@ -192,13 +192,17 @@ First enter the events that you have on mondays:""")
         except discord.Forbidden:
             await ctx.channel.send("I don't have the permission to access or send message this channel or to delete messages from this channel.\nTry with another channel or give me the permission to access and send messages to that channel, then try again:")
 
-    await ctx.channel.send("Mention the people or roles to inform, they will be mentioned when an event has started:")
+    await ctx.channel.send("Mention the people or roles to inform, they will be mentioned when an event has started\n\
+You can also make mentioning people off by sending a \"nope\":")
     try:
         getmention = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
         return
-    mention = getmention.content
+    if getmention.content.lower() == "nope":
+        mention=''
+    else:
+        mention = getmention.content
 
     await ctx.channel.send("Lastly enter a password for your timetable that others can't change it. You can also send it as a spoiler. Message will be immediately deleted.")
     try:

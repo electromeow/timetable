@@ -1,3 +1,22 @@
+"""
+Copyright (C) 2021  Berat Gökgöz
+
+This file is a part of Timetable project.
+
+Timetable is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or any
+later version.
+
+Timetable is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
 import discord
 from discord.ext import commands
 import pandas as pd
@@ -69,10 +88,8 @@ def get_prefix_tuple(client, message):
 
 
 def get_prefix(client, message):
-    try:
-        return db.getPrefix(message.guild.id)
-    except:
-        await message.add_reaction('⏱')
+    return db.getPrefix(message.guild.id)
+
 
 async def runReminders():
     global db
@@ -170,6 +187,11 @@ async def on_guild_remove(sv):
 @bot.command()
 async def token(ctx):
     await utils.token(ctx)
+
+
+@bot.command()
+async def contribute(ctx):
+    await promotion.contribute(ctx)
 
 
 @bot.command()
@@ -413,16 +435,25 @@ async def exit(ctx):
         exit()
 
 
-async def runcode(ctx, code):
+async def runcode(ctx, codeblock):
     if int(ctx.author.id) != ownerId:
         return
     else:
-        print(code)
+        #print(code)
         startTime = time.time()
         err = None
         resp = None
+        codeblockregex = r"`{3}([a-zA-Z0-9\-+]*)(.*)`{3}"
+        code = '\n'.join(re.search(codeblockregex, codeblock, re.DOTALL)
+        .group()
+        .strip(r'```')
+        .strip('\n')
+        .strip()
+        .split('\n')[1:])
         try:
-            resp = eval(code)
+            print(code)
+            exec("def EvalCode():\n"+'\n'.join(map(lambda x: '    '+x, code.split('\n'))))
+            resp = eval("EvalCode()")
             err = None
         except Exception as e:
             err = e

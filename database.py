@@ -64,7 +64,6 @@ class Connection:
 
     def getTables(self):
         """Gets all the tables from the database and converts them to Pandas DataFrames."""
-        self.con.commit()
         self.cur.execute("SELECT tableid FROM tabledata")
         response = self.cur.fetchall()
         tableDfs = []
@@ -85,7 +84,6 @@ class Connection:
 
     def getTable(self, tableid):
         """Gets the table with given ID as Pandas.DataFrame."""
-        self.con.commit()
         self.cur.execute(f"SELECT * FROM t{tableid}")
         tableResp = self.cur.fetchall()
         columns = [i[0] for i in self.cur.description]
@@ -149,7 +147,6 @@ VALUES ({randomid},{channelid},'{password.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE
 
     def getReminders(self):
         """Gets the reminder from the database."""
-        self.con.commit()
         self.cur.execute("SELECT * FROM reminders")
         resp = self.cur.fetchall()
         dictionary = {}
@@ -160,7 +157,6 @@ VALUES ({randomid},{channelid},'{password.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE
 
     def addReminder(self, date, time, channel, event):
         """Adds a reminder to the database."""
-        self.con.commit()
         self.cur.execute("SELECT rid FROM reminders")
         reminderIds = self.cur.fetchall()
         while True:

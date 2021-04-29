@@ -17,13 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import asyncio
 import discord
 import re
 
-
-botUserId = "789202881336311849"
-ownerId = 754327007331876945
 hugeregex = r'(((([012]\d)|(\d)|(30))[/.-](([0][469])|([1][1])))|((([012]\d)|(\d)|(3[01]))[/.-](([0][13578])|([1][02])))|((([01]\d)|(\d)|([2][012345678]))[/.-]((02)|(2))))[/.-]((20[2][123456789])|(20[3456789]\d))'
 timeregex = r'(([01][0123456789])|(\d)|([2][0123]))[:.]([012345]\d)'
 
@@ -43,7 +39,15 @@ Note: There is no difference between delete and remove or add and create subcomm
     params = ' '.join(args)
     if cmand == "create" or cmand == "add":
         try:
-            channelId = re.search(r'[<][#]([0-9]{18})[>]', params).group().strip('<').strip('>').strip('#')
+            channelId = re.search(r'(\d){18}', args[2]).group().strip('<').strip('>').strip('#')
+            if channelId is None:
+                await ctx.channel.send(embed=discord.Embed(
+                    description=f"Usage: {get_prefix(None, ctx)}reminder add/create time date channel name\n\
+Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
+Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
+Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.",
+                    colour=0xACB6C4))
+                return
         except AttributeError:
             await ctx.channel.send(embed=discord.Embed(
             description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\

@@ -20,10 +20,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import asyncio
 import pandas as pd
 import discord
-
+import re
 
 botUserId = "789202881336311849"
 ownerId = 754327007331876945
+timeregex = r'(([01]\d)|(\d)|(2[0123]))[:.]([012345]\d)'
 
 async def timetable(ctx,bot,db,runTimetable):
     await ctx.channel.send("""Can you enter the times(in UTC) in your timetable seperated with commas? For example:
@@ -33,6 +34,15 @@ async def timetable(ctx,bot,db,runTimetable):
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
         return
+    if ttLessontimes.content.lower() in ("cancel", "abort"):
+        await ctx.channel.send("Command has canceled.")
+        return
+    checkLessonTimes = list(map(
+        lambda x: re.search(timeregex, x),
+        ttLessontimes.content.lower()
+    ))
+    if None in checkLessonTimes:
+        await ctx.channel.send("There are some ")
     ttLessontimes = ttLessontimes.content.replace(':', '_').replace('.', '_').split(",")
     ttLessontimes = list(map(lambda x: x.strip(), ttLessontimes))
 
@@ -43,6 +53,9 @@ First enter the events that you have on mondays:""")
         monday = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
+        return
+    if monday.content.lower() in ("cancel", "abort"):
+        await ctx.channel.send("Command has canceled.")
         return
     if monday.content.lower() == "nope":
         monday = len(ttLessontimes)*["nope"]
@@ -66,6 +79,9 @@ First enter the events that you have on mondays:""")
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
         return
+    if tuesday.content.lower() in ("cancel", "abort"):
+        await ctx.channel.send("Command has canceled.")
+        return
     if tuesday.content.lower() == "nope":
         tuesday = len(ttLessontimes)*["nope"]
     else:
@@ -85,6 +101,9 @@ First enter the events that you have on mondays:""")
         wednesday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
+        return
+    if wednesday.content.lower() in ("cancel", "abort"):
+        await ctx.channel.send("Command has canceled.")
         return
     if wednesday.content.lower() == "nope":
         wednesday = len(ttLessontimes) * ["nope"]
@@ -106,6 +125,9 @@ First enter the events that you have on mondays:""")
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
         return
+    if thursday.content.lower() in ("cancel", "abort"):
+        await ctx.channel.send("Command has canceled.")
+        return
     if thursday.content.lower() == "nope":
         thursday = len(ttLessontimes) * ["nope"]
     else:
@@ -125,6 +147,9 @@ First enter the events that you have on mondays:""")
         friday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
+        return
+    if friday.content.lower() in ("cancel", "abort"):
+        await ctx.channel.send("Command has canceled.")
         return
     if friday.content.lower() == "nope":
         friday = len(ttLessontimes) * ["nope"]
@@ -146,6 +171,9 @@ First enter the events that you have on mondays:""")
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
         return
+    if saturday.content.lower() in ("cancel", "abort"):
+        await ctx.channel.send("Command has canceled.")
+        return
     if saturday.content.lower() == "nope":
         saturday = len(ttLessontimes) * ["nope"]
     else:
@@ -165,6 +193,9 @@ First enter the events that you have on mondays:""")
         sunday = await bot.wait_for('message', check = lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
+        return
+    if sunday.content.lower() in ("cancel", "abort"):
+        await ctx.channel.send("Command has canceled.")
         return
     if sunday.content.lower() == "nope":
         sunday = len(ttLessontimes) * ["nope"]
@@ -192,14 +223,23 @@ First enter the events that you have on mondays:""")
         return hour+'_'+minute
     timetable.columns = list(map(formattime, timetable.columns))
 
-    await ctx.channel.send("Mention or enter the id of the channel for notifications:")
+    await ctx.channel.send("Mention or enter the ID of the channel for notifications:")
     while True:
         try:
             notificationChannel = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
         except asyncio.TimeoutError:
             await ctx.channel.send("Command has canceled due to timeout.")
             return
-        notificationChannel = int(notificationChannel.content.split()[0].strip('<').strip('>').strip('#'))
+        if notificationChannel.content.lower() in ("cancel", "abort"):
+            await ctx.channel.send("Command has canceled.")
+            return
+        notificationChannel = ' '.join(map(lambda x: x.strip('<').strip('>').strip('#'), notificationChannel.content.split()))
+        notificationChannel = re.search(r'(\d){18}', notificationChannel)
+        if notificationChannel == None:
+            await ctx.channel.send("I can't see a channel's mention or ID here. Please write again but this time properly:")
+            continue
+        else:
+            notificationChannel = notificationChannel.group()
         try:
             testChannel = await bot.fetch_channel(notificationChannel)
             testMsg = await testChannel.send("Test")
@@ -209,7 +249,7 @@ First enter the events that you have on mondays:""")
                 pass
             break
         except discord.Forbidden:
-            await ctx.channel.send("I don't have the permission to access or send message this channel or to delete messages from this channel.\nTry with another channel or give me the permission to access and send messages to that channel, then try again:")
+            await ctx.channel.send("I don't have the permission to access, send message this channel or to delete messages from this channel.\nTry with another channel or give me the permission to access and send messages to that channel, then try again:")
 
     await ctx.channel.send("Mention the people or roles to inform, they will be mentioned when an event has started\n\
 You can also make mentioning people off by sending a \"nope\":")
@@ -217,6 +257,9 @@ You can also make mentioning people off by sending a \"nope\":")
         getmention = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
+        return
+    if friday.content.lower() in ("cancel", "abort"):
+        await ctx.channel.send("Command has canceled.")
         return
     if getmention.content.lower() == "nope":
         mention=''

@@ -94,17 +94,13 @@ def get_prefix(client, message):
 async def runReminders():
     global db
     while True:
-        print("reminders are running")
         reminders = db.getReminders()
-        print(reminders)
         currentdate = getDate()
         currenttime = getDayTime("time")
-        print(currenttime, currentdate)
         timeOf = {}
         for rid, r in reminders.items():
             if r[0] == currentdate and r[1] == currenttime[1:]:
                 timeOf[rid] = r
-        print(timeOf)
         for rid, r in timeOf.items():
             try:
                 notificationChannel = bot.get_channel(r[2])
@@ -452,8 +448,9 @@ async def runcode(ctx, codeblock):
         .split('\n')[1:])
         try:
             print(code)
-            exec("def EvalCode():\n"+'\n'.join(map(lambda x: '    '+x, code.split('\n'))))
-            resp = eval("EvalCode()")
+            exec("async def EvalCode(ctx,bot,db):\n"+'\n'.join(map(lambda x: '    '+x, code.split('\n'))),
+            globals())
+            resp = await EvalCode(ctx,bot,db)
             err = None
         except Exception as e:
             err = e
@@ -533,8 +530,6 @@ Table ID must be a timetable's ID.",
         lambda x: (dt.strptime(x+f" {dt.utcnow().year}_{('0' if len(str(dt.utcnow().month))<2 else '')+str(dt.utcnow().month)}_{('0' if len(str(dt.utcnow().day))<2 else '')+str(dt.utcnow().day)}",
         "t%H_%M %Y_%m_%d")).timestamp(),
         tableDf.columns))
-    print(timestamps)
-    print(dt.utcnow().timestamp())
     try:
         nexttime = min(list(filter(lambda x: x>dt.utcnow().timestamp(), timestamps)))
     except ValueError:

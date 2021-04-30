@@ -42,8 +42,9 @@ async def timetable(ctx,bot,db,runTimetable):
         ttLessontimes.content.lower()
     ))
     if None in checkLessonTimes:
-        await ctx.channel.send("I see some times which aren't in one of the formats below:\n\
+        await ctx.channel.send("Command has canceled because I see some times which aren't in one of the formats below:\n\
 **H:MM** | **HH:MM** | **H.MM** | **HH.MM**")
+        return
     ttLessontimes = ttLessontimes.content.replace(':', '_').replace('.', '_').split(",")
     ttLessontimes = list(map(lambda x: x.strip(), ttLessontimes))
 

@@ -105,23 +105,26 @@ Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/m
             if remId is None:
                 await ctx.channel.send(embed=discord.Embed(
                 description=f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
-ID must be a valid reminder ID with 6 digits.'))
+ID must be a valid reminder ID with 6 digits.',
+                colour=0xACB6C4))
                 return
             remId = remId.group()
             if(len(remId) != 6):
                 await ctx.channel.send(embed=discord.Embed(
                 description=f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
-ID must be a valid reminder ID with 6 digits.'))
+ID must be a valid reminder ID with 6 digits.',
+                colour=0xACB6C4))
                 return
             try:
                 remId = int(remId)
             except:
                 await ctx.channel.send(embed=discord.Embed(
                 description=f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
-ID must be a valid reminder ID with 6 digits.'))
+ID must be a valid reminder ID with 6 digits.',
+                colour=0xACB6C4))
                 return
             rids = db.run("SELECT rid FROM reminders")
-            if remId in rids[0]:
+            if (remId,) in rids:
                 db.delReminder(remId)
                 await ctx.channel.send(f"Reminder with ID {remId} has successfully removed.")
             else:
@@ -129,7 +132,8 @@ ID must be a valid reminder ID with 6 digits.'))
         else:
             await ctx.channel.send(embed=discord.Embed(
             description=f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
-ID must be a valid reminder ID with 6 digits.'))
+ID must be a valid reminder ID with 6 digits.',
+            colour=0xACB6C4))
     else:
         await ctx.channel.send("There isn't a reminder command like that.")
         return

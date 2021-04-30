@@ -120,10 +120,11 @@ ID must be a valid reminder ID with 6 digits.'))
                 description=f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
 ID must be a valid reminder ID with 6 digits.'))
                 return
-            try:
+            rids = db.run("SELECT rid FROM reminders")
+            if remId in rids[0]:
                 db.delReminder(remId)
                 await ctx.channel.send(f"Reminder with ID {remId} has successfully removed.")
-            except:
+            else:
                 await ctx.channel.send("I can't see a reminder with that ID.")
         else:
             await ctx.channel.send(embed=discord.Embed(

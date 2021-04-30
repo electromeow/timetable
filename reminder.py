@@ -62,7 +62,10 @@ Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/m
         else:
             result = None
             try:
-                result = re.search(hugeregex, params).group()
+                result = re.search(hugeregex, params)
+                dateindex = result.start()
+                result = result.group()
+                params = params[:dateindex]+params[dateindex+len(result):]
             except AttributeError:
                 await ctx.channel.send(embed=discord.Embed(
                 description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
@@ -70,12 +73,12 @@ Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYY
 Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
 Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.", colour=0xACB6C4))
                 return
-            if result != None:
+            if result is not None:
                 result = result.replace('/', '-').replace('.', '-').split('-')
                 result[0] = result[0].lstrip('0')
                 result[1] = result[1].lstrip('0')
                 reminderDate = '-'.join(result)
-            elif result == None:
+            else:
                 await ctx.channel.send(embed=discord.Embed(
                 description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
 Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
@@ -84,24 +87,48 @@ Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/m
                 return
         searchTime = None
         searchTime = re.search(timeregex, params).group()
-        if searchTime == None:
+        if searchTime is None:
             await ctx.channel.send(embed=discord.Embed(
             description=f"Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
 Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
 Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
 Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.", colour=0xACB6C4))
             return
-        elif searchTime != None:
+        else:
             reminderTime = searchTime.replace(':', '_').replace('.', '_')
         remId = db.addReminder(reminderDate, reminderTime, channelId, ' '.join(params.split()[3:]))
         await ctx.channel.send(f"Reminder {' '.join(params.split()[3:])} with ID {remId} has successfully set to {reminderDate.replace('-', '/')} {reminderTime.replace('_',':')}.\nIt will be announced at channel <#{channelId}>")
 
     elif cmand == "delete" or cmand == "remove":
-        if len(params.split())==1:
-            remId = re.search(r'([1-9])([0-9]{5})')
-            db.delReminder(remId)
+        if len(args)==1:
+            remId = re.search(r'([1-9])([0-9]{5})', args[0])
+            if remId is None:
+                await ctx.channel.send(embed=discord.Embed(
+                description=f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
+ID must be a valid reminder ID with 6 digits.'))
+                return
+            remId = remId.group()
+            if(len(remId) != 6):
+                await ctx.channel.send(embed=discord.Embed(
+                description=f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
+ID must be a valid reminder ID with 6 digits.'))
+                return
+            try:
+                remId = int(remId)
+            except:
+                await ctx.channel.send(embed=discord.Embed(
+                description=f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
+ID must be a valid reminder ID with 6 digits.'))
+                return
+            try:
+                db.delReminder(remId)
+                await ctx.channel.send(f"Reminder with ID {remId} has successfully removed.")
+            except:
+                await ctx.channel.send("I can't see a reminder with that ID.")
         else:
-            await ctx.channel.send(f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID')
+            await ctx.channel.send(embed=discord.Embed(
+            description=f'Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
+ID must be a valid reminder ID with 6 digits.'))
     else:
         await ctx.channel.send("There isn't a reminder command like that.")
         return

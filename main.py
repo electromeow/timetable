@@ -157,6 +157,7 @@ async def on_ready():
     tabletasks.append(asyncio.create_task(runReminders()))
     for t in tableIds:
         tabletasks.append(asyncio.create_task(runTimetable(t)))
+    print("Bot is ready!")
     await asyncio.gather(*tabletasks)
 
 

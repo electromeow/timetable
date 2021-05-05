@@ -21,11 +21,14 @@ import psycopg2 as sql
 import pandas as pd
 import json
 import random as rd
+from datetime import datetime as dt
+from datetime import timedelta
 
 SINGLEQUOTE = "'"
 ESCAPEDSINGLEQUOTE = "\\'"
 
 class Connection:
+
 
     def __init__(self):
         """Connects to the database."""
@@ -41,26 +44,31 @@ class Connection:
         prefixes = self.cur.fetchall()
         return dict(prefixes)
 
+
     def getPrefix(self, svid):
         """Gets prefix of the server with given ID from database."""
         self.cur.execute(f"SELECT pf FROM prefixes WHERE svid = {svid}")
         resp = self.cur.fetchall()
         return resp[0][0]
 
+
     def addPrefix(self, svid, pf):
         """Adds a server with its prefix to database."""
         self.cur.execute(f"INSERT INTO prefixes(svid, pf) VALUES ({svid},'{pf}')")
         self.con.commit()
+
 
     def changePrefix(self, svid, pf):
         """Changes a prefix of a server database."""
         self.cur.execute(f"UPDATE prefixes SET pf = '{pf}' WHERE svid = {svid}")
         self.con.commit()
 
+
     def delPrefix(self, svid):
         """Deletes a server from prefixes table in the database."""
         self.cur.execute(f"DELETE FROM prefixes WHERE svid = {svid}")
         self.con.commit()
+
 
     def getTables(self):
         """Gets all the tables from the database and converts them to Pandas DataFrames."""
@@ -138,12 +146,14 @@ VALUES ({randomid},{channelid},'{password.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE
         self.cur.execute(f"UPDATE tabledata SET mention = '{mention.replace(SINGLEQUOTE, ESCAPEDSINGLEQUOTE)}' WHERE tableid = {tableid}")
         self.con.commit()
 
+
     def run(self, command):
         """Runs the given command. It's made to use with eval command."""
         self.cur.execute(command)
         self.con.commit()
         resp = self.cur.fetchall()
         return resp
+
 
     def getReminders(self):
         """Gets the reminder from the database."""
@@ -169,13 +179,35 @@ VALUES ({randomid},{channelid},'{password.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE
         self.con.commit()
         return randomid
 
+
     def delReminder(self, rid):
         """Deletes the reminder with the given ID from the database."""
         self.cur.execute(f"DELETE FROM reminders WHERE rid = {rid}")
         self.con.commit()
 
 
+    # Will be used when bot is approved in top.gg
+    def addVotedUser(self, uid):
+        """Adds a voted user for next 5 days if not in database."""
+        self.cur.execute(f"DELETE FROM votes WHERE uid={uid}")
+        timestamp = dt.utcnow() + timedelta(days=5)
+        timestamp = int(timestamp.timestamp())
+        self.cur.execute(f"INSERT INTO votes VALUES ({uid}, {timestamp})")
+        self.con.commit()
+
+
+    def checkVotedUser(self, uid):
+        """Checks a user if voted in last 5 days."""
+        self.cur.execute(f"SELECT validuntil FROM votes WHERE uid={uid}")
+        resp = self.cur.fetchall()
+        if len(resp[0]) < 1:
+            return False
+        if resp[0][0] >= int(dt.utcnow().timestamp()):
+            return True
+        elif resp[0][0] < int(dt.utcnow().timestamp()):
+            return False
+
+
     def disconnect(self):
         """Disconnects."""
-        self.cur.close()
         self.con.close()

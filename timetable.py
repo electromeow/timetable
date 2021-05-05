@@ -38,8 +38,8 @@ async def timetable(ctx,bot,db,runTimetable):
         await ctx.channel.send("Command has canceled.")
         return
     checkLessonTimes = list(map(
-        lambda x: re.search(timeregex, x),
-        ttLessontimes.content.lower()
+        lambda x: re.search(timeregex, x.strip()),
+        ttLessontimes.content.lower().split(',')
     ))
     if None in checkLessonTimes:
         await ctx.channel.send("Command has canceled because I see some times which aren't in one of the formats below:\n\
@@ -68,7 +68,6 @@ First enter the events that you have on mondays:""")
             monday = monday[:len(ttLessontimes)]
         elif len(monday) < len(ttLessontimes):
             while len(monday) < len(ttLessontimes):
-
                 monday.append("nope")
         else:
             pass
@@ -260,7 +259,7 @@ You can also make mentioning people off by sending a \"nope\":")
     except asyncio.TimeoutError:
         await ctx.channel.send("Command has canceled due to timeout.")
         return
-    if friday.content.lower() in ("cancel", "abort"):
+    if getmention.content.lower() in ("cancel", "abort"):
         await ctx.channel.send("Command has canceled.")
         return
     if getmention.content.lower() == "nope":

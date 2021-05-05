@@ -31,6 +31,8 @@ import timetable as timetablefile
 import reminder as reminderfile
 import promotion, utils
 import database as datab
+from plotting import plottable
+from botlists import BotLists
 
 startuptime = time.time()
 
@@ -38,6 +40,7 @@ f=open("token.txt", 'r')
 TOKEN = f.read()
 f.close()
 db = datab.Connection()
+botlistsmanager = BotLists(db)
 botUserId = "789202881336311849"
 ownerId = 754327007331876945
 hugeregex = r'(((([012]\d)|(\d)|(30))[/.-](([0][469])|([1][1])))|((([012]\d)|(\d)|(3[01]))[/.-](([0][13578])|([1][02])))|((([01]\d)|(\d)|([2][012345678]))[/.-]((02)|(2))))[/.-]((20[2][123456789])|(20[3456789]\d))'
@@ -145,6 +148,7 @@ bot = commands.Bot(command_prefix=get_prefix_tuple, help_command=None)
 @bot.event
 async def on_ready():
     global db
+    global botlistsmanager
     prefixesdb = dict(db.getPrefixes())
     for g in bot.guilds:
         if g.id in prefixesdb.keys():
@@ -158,6 +162,7 @@ async def on_ready():
     for t in tableIds:
         tabletasks.append(asyncio.create_task(runTimetable(t)))
     print("Bot is ready!")
+    await botlistsmanager.postServerCount(len(bot.guilds))
     await asyncio.gather(*tabletasks)
 
 
@@ -173,12 +178,21 @@ async def on_message(message):
 
 @bot.event
 async def on_guild_join(sv):
+    global db
+    global botlistsmanager
     db.addPrefix(sv.id, "t.")
-
+    logchannel = bot.get_channel(837702185033662485)
+    await logchannel.send(f"Bot joined to a new server: {sv.name}")
+    await botlistsmanager.postServerCount(len(bot.guilds))
 
 @bot.event
 async def on_guild_remove(sv):
+    global db
+    global botlistsmanager
     db.delPrefix(sv.id)
+    logchannel = bot.get_channel(837702185033662485)
+    await logchannel.send(f"Bot removed from a server: {sv.name}")
+    await botlistsmanager.postServerCount(len(bot.guilds))
 
 
 @bot.command()
@@ -212,26 +226,7 @@ async def timetable(ctx):
 @bot.command()
 async def show(ctx, tableid=None):
     global db
-    if tableid=='' or tableid==None:
-        await ctx.channel.send(embed=discord.Embed(
-        description=f"Usage: {get_prefix(None,ctx)}show table_id\n\
-Table ID must be a timetable's ID.",
-        colour=0xACB6C4
-        ))
-        return
-    try:
-        tableDf = db.getTable(tableid)
-        tableDf.columns = list(map(lambda x: x.strip('t'),tableDf.columns))
-        tableDf.index = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-        await ctx.channel.send(embed=discord.Embed(title=f"Timetable {tableid}",
-        description=f"```\n{tableDf.replace('nope','')}\n```",
-        color=0xACB6C4).add_field(
-        name="Warning!",
-        value="This command is still in beta. Your timetable may be showed unproperly.\n\
-It will be replaced with an image procesing method as soon as possible.\n\
-But Good News: You can use the 'next' command to look at your next upcoming event!"))
-    except:
-        await ctx.channel.send("I can't find a timetable with the given ID.")
+    await plottable(ctx, db, tableid, get_prefix)
 
 
 @bot.command()
@@ -413,10 +408,19 @@ Table ID must be a timetable's ID",
         ))
         return
     try:
+        re.match(r'[123456789](\d){5}', tid)
+        if re.match == None:
+            await ctx.channel.send(embed=discord.Embed(
+            description=f"Usage: {get_prefix(None,ctx)}download table_id\n\
+Table ID must be a timetable's ID",
+            colour=0xACB6C4
+            ))
+            return
         tableDf = db.getTable(tid)
     except:
         await ctx.channel.send("I can't see a timetable with that ID.")
         return
+    tableDf.columns = list(map(lambda x: x.lstrip('t').replace('_',':'), tableDf.columns))
     tableDf.to_csv(f"table-{tid}.csv", sep=';', index=False)
     await ctx.channel.send(file=discord.File(f"table-{tid}.csv"))
     os.remove(f"table-{tid}.csv")

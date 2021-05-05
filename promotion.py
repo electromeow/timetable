@@ -49,7 +49,7 @@ async def contribute(ctx):
     title="Contribute",
     description="I heard that you have enough Python knowledge to improve this bot.\n\
 If I didn't hear wrong, then go to [my GitHub Repository](https://github.com/electromeow/timetable).\
-Fork, improve and submit a pull request.\n\Actually bot isn't deployed by that repository.\n\
+Fork, improve and submit a pull request.\nActually bot isn't deployed by that repository.\n\
 But I sync them with the original private deployment repository including secret information like token.\n\
 So you can make sure that your improvements will be applied to actual bot.\n\
 If you are a person don't know enough Python and if you're a free rider, please don't copy-paste & host \

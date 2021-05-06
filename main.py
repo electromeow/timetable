@@ -176,12 +176,35 @@ async def on_message(message):
         await bot.process_commands(message)
 
 
+@bot.command()
+async def support(ctx):
+    await utils.support(ctx)
+
+
+@bot.command()
+async def suggest(ctx, *text):
+    suggestion_text = ' '.join(text)
+    if suggestion_text == '' or suggestion_text.isspace():
+        await ctx.channel.send(f"Usage: {get_prefix(None, ctx)}suggest your_suggestions")
+        return
+    await utils.suggest(ctx, suggestion_text, bot)
+
+
+@bot.command()
+async def report(ctx, *text):
+    report_text = ' '.join(text)
+    if report_text == '' or report_text.isspace():
+        await ctx.channel.send(f"Usage: {get_prefix(None, ctx)}report your_bug_report")
+        return
+    await utils.report(ctx, report_text, bot)
+
+
 @bot.event
 async def on_guild_join(sv):
     global db
     global botlistsmanager
     db.addPrefix(sv.id, "t.")
-    logchannel = bot.get_channel(837702185033662485)
+    logchannel = bot.get_channel(839766392156717056)
     await logchannel.send(f"Bot joined to a new server: {sv.name}")
     await botlistsmanager.postServerCount(len(bot.guilds))
 
@@ -190,7 +213,7 @@ async def on_guild_remove(sv):
     global db
     global botlistsmanager
     db.delPrefix(sv.id)
-    logchannel = bot.get_channel(837702185033662485)
+    logchannel = bot.get_channel(839766392156717056)
     await logchannel.send(f"Bot removed from a server: {sv.name}")
     await botlistsmanager.postServerCount(len(bot.guilds))
 

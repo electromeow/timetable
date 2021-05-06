@@ -72,3 +72,30 @@ async def stats(ctx, startuptime, bot, db):
     statsembed.add_field(name="Commands",value=str(len(bot.commands)-2))
     statsembed.add_field(name="CPU",value="<:cpu:833632344534941747>  "+cpuinfo)
     await ctx.channel.send(embed=statsembed)
+
+
+async def suggest(ctx, suggestion_text, bot):
+    channel = bot.get_channel(839461823375081483)
+    await channel.send(embed=discord.Embed(
+        title=f"Suggestion by {ctx.author.name}#{ctx.author.discriminator}",
+        description=suggestion_text,
+        colour=0xACB6C4))
+    await ctx.channel.send("Your suggestion has sent to bot's support server!")
+
+
+async def report(ctx, report_text, bot):
+    channel = bot.get_channel(838770130146033674)
+    await channel.send(embed=discord.Embed(
+        title=f"Bug Report by {ctx.author.name}#{ctx.author.discriminator}",
+        description=report_text,
+        colour=0xACB6C4))
+    await ctx.channel.send("Your bug report has sent to bot's support server!")
+
+
+async def support(ctx):
+    await ctx.channel.send(embed=discord.Embed(
+    title="Support",
+    description="If you didn't understand how to use the bot, you can join our support server:\n\
+[Join](https://https://discord.gg/btaGQ6zB6u)",
+    colour=0xACB6C4
+    ))

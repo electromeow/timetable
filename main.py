@@ -206,15 +206,27 @@ async def on_guild_join(sv):
     db.addPrefix(sv.id, "t.")
     channel = sv.system_channel
     if channel != None:
-        await channel.send("Thanks for adding me to your server! My default prefix is `t.` and to see my commands, use `t.help`\n\
+        await channel.send(embed=discord.Embed(description="Thanks for adding me to your server! My default prefix is `t.` and to see my commands, use `t.help`\n\
 I hope that you love me and don't kick me after a few minutes after I joined. Let me explain what you can do with me:\n\
 You can create your timetables and be informed when a lesson, online meeting, or any useless(!) event has started,\n\
-You can learn your next event today,")
+You can learn your next event today,\n\
+You can see your weekly timetable\n\
+You can be notified on events you set a reminder,\n\
+and much more...\n\
+If you love me, please don't forget to add me on your other servers, join to my support server and vote me on bot list websites!",
+            colour=0xACB6C4))
     else:
         for ch in sv.text_channels:
             try:
-                await ch.send("Thanks for adding me to your server! My default prefix is `t.` and to see my commands, use `t.help`\n\
-I hope that you love me and don't kick me after a few minutes after I joined.")
+                await ch.send(embed=discord.Embed(description="Thanks for adding me to your server! My default prefix is `t.` and to see my commands, use `t.help`\n\
+I hope that you love me and don't kick me after a few minutes after I joined. Let me explain what you can do with me:\n\
+You can create your timetables and be informed when a lesson, online meeting, or any useless(!) event has started,\n\
+You can learn your next event today,\n\
+You can see your weekly timetable\n\
+You can be notified on events you set a reminder,\n\
+and much more...\n\
+If you love me, please don't forget to add me on your other servers, join to my support server and vote me on bot list websites!",
+                    colour=0xACB6C4))
                 break
             except:
                 pass

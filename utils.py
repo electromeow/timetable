@@ -96,6 +96,6 @@ async def support(ctx):
     await ctx.channel.send(embed=discord.Embed(
     title="Support",
     description="If you didn't understand how to use the bot, you can join our support server:\n\
-[Join](https://https://discord.gg/btaGQ6zB6u)",
+[Join](https://discord.gg/btaGQ6zB6u)",
     colour=0xACB6C4
     ))

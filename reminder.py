@@ -38,6 +38,9 @@ Note: There is no difference between delete and remove or add and create subcomm
     cmand = cmd.lower().strip()
     params = ' '.join(args)
     if cmand == "create" or cmand == "add":
+        if params.find("@everyone") > -1 or params.find("@here") > -1:
+            await ctx.channel.send("Did you think that you are intelligent enough?")
+            return
         try:
             channelId = re.search(r'(\d){18}', args[2]).group().strip('<').strip('>').strip('#')
             if channelId is None:

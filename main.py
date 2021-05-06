@@ -308,6 +308,9 @@ Mentions should be a series of roles/users' mentions. You can make it blank by s
         ))
         return
     mention = ' '.join(mentions)
+    if mentions.find("@everyone") > -1 or mentions.find("@here") > -1:
+        await ctx.channel.send("Did you think that you are intelligent enough?")
+        return
     try:
         tableInfos = db.getTableInfos(tid)
     except:
@@ -506,12 +509,15 @@ Event name should be a proper event name.",
     try:
         secs = int(seconds)
     except:
-        await ctx.channel.send("I can't wait for a NotANumber of seconds.")
+        await ctx.channel.send("I can't wait for a NotANumber amount of seconds.\nYou are so intelligent, you should definitely become a bug hunter when you're an adult!")
         return
     if secs > (24*60*60):
         await ctx.channel.send("You can't countdown more than a day. Instead use reminders.")
         return
     eventname = ' '.join(name)
+    if eventname.find("@everyone") > -1 or eventname.find("@here") > -1:
+        await ctx.channel.send("Did you think that you are intelligent enough?")
+        return
     if eventname == '' or eventname.isspace():
         await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}countdown amount(seconds) event_name")
         return

@@ -266,7 +266,9 @@ You can also make mentioning people off by sending a \"nope\":")
         mention=''
     else:
         mention = getmention.content
-
+        if mention.find("@everyone") > -1 or mention.find("@here") > -1:
+            await ctx.channel.send("Did you think that you are intelligent enough?")
+            return
     await ctx.channel.send("Lastly enter a password for your timetable that others can't change it. You can also send it as a spoiler. Message will be immediately deleted.")
     try:
         getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)

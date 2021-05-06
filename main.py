@@ -155,7 +155,7 @@ async def on_ready():
             pass
         else:
             db.addPrefix(g.id, "t.")
-    await bot.change_presence(activity=discord.Game("with your time"))
+    await bot.change_presence(activity=discord.Game("t.help"))
     tableIds = db.getTableIds()
     tabletasks=[]
     tabletasks.append(asyncio.create_task(runReminders()))
@@ -204,6 +204,20 @@ async def on_guild_join(sv):
     global db
     global botlistsmanager
     db.addPrefix(sv.id, "t.")
+    channel = sv.system_channel
+    if channel != None:
+        await channel.send("Thanks for adding me to your server! My default prefix is `t.` and to see my commands, use `t.help`\n\
+I hope that you love me and don't kick me after a few minutes after I joined. Let me explain what you can do with me:\n\
+You can create your timetables and be informed when a lesson, online meeting, or any useless(!) event has started,\n\
+You can learn your next event today,")
+    else:
+        for ch in sv.text_channels:
+            try:
+                await ch.send("Thanks for adding me to your server! My default prefix is `t.` and to see my commands, use `t.help`\n\
+I hope that you love me and don't kick me after a few minutes after I joined.")
+                break
+            except:
+                pass
     logchannel = bot.get_channel(839766392156717056)
     await logchannel.send(f"Bot joined to a new server: {sv.name}")
     await botlistsmanager.postServerCount(len(bot.guilds))
@@ -564,15 +578,20 @@ Table ID must be a timetable's ID.",
         lambda x: (dt.strptime(x+f" {dt.utcnow().year}_{('0' if len(str(dt.utcnow().month))<2 else '')+str(dt.utcnow().month)}_{('0' if len(str(dt.utcnow().day))<2 else '')+str(dt.utcnow().day)}",
         "t%H_%M %Y_%m_%d")).timestamp(),
         tableDf.columns))
-    try:
-        nexttime = min(list(filter(lambda x: x>dt.utcnow().timestamp(), timestamps)))
-    except ValueError:
-        await ctx.channel.send("You don't have an event on your timetable today.")
-        return
-    nextlesson = tableDf.at[dt.utcnow().weekday(), dt.fromtimestamp(nexttime).strftime("t%H_%M")]
+    while True:
+        try:
+            nexttime = min(list(filter(lambda x: x>dt.utcnow().timestamp(), timestamps)))
+        except ValueError:
+            await ctx.channel.send("You don't have an event on your timetable today.")
+            return
+        nextevent = tableDf.at[dt.utcnow().weekday(), dt.fromtimestamp(nexttime).strftime("t%H_%M")]
+        if str(nextevent).lower() == "nope":
+            continue
+        else:
+            break
     await ctx.channel.send(embed=discord.Embed(
         title="Your Next Event Today",
-        description=f"Next event today on your timetable is: {nextlesson}\n\
+        description=f"Next event today on your timetable is: {nextevent}\n\
 It begins at {dt.fromtimestamp(nexttime).strftime('%H:%M.')} UTC\n\
 You have {int((nexttime-dt.utcnow().timestamp())//(60*60)) if (nexttime-dt.utcnow().timestamp())//(60*60) > 0 else ''} \
 {'hours, ' if (nexttime-dt.utcnow().timestamp())//(60*60)>1 else ''}\

@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import discord
 import re
+from datetime import datetime as dt
 
 hugeregex = r'(((([012]\d)|(\d)|(30))[/.-](([0][469])|([1][1])))|((([012]\d)|(\d)|(3[01]))[/.-](([0][13578])|([1][02])))|((([01]\d)|(\d)|([2][012345678]))[/.-]((02)|(2))))[/.-]((20[2][123456789])|(20[3456789]\d))'
 timeregex = r'(([01][0123456789])|(\d)|([2][0123]))[:.]([012345]\d)'
@@ -36,6 +37,18 @@ Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
 Note: There is no difference between delete and remove or add and create subcommands.", colour=0xACB6C4))
         return
     cmand = cmd.lower().strip()
+    print(args)
+    if len(args) < 4:
+        await ctx.channel.send(embed=discord.Embed(
+        description=f"Subcommands add/create:\n\
+Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
+Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
+Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
+Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.\n\
+\nSubcommands remove/delete:\n\
+Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
+Note: There is no difference between delete and remove or add and create subcommands.", colour=0xACB6C4))
+        return
     params = ' '.join(args)
     if cmand == "create" or cmand == "add":
         if params.find("@everyone") > -1 or params.find("@here") > -1:
@@ -99,6 +112,9 @@ Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/m
             return
         else:
             reminderTime = searchTime.replace(':', '_').replace('.', '_')
+        if dt.strptime(f"{reminderDate} {reminderTime}", "%d-%m-%Y %H_%M").timestamp() < dt.utcnow().timestamp():
+            await ctx.channel.send("Did you think that you are intelligent enough?")
+            return
         remId = db.addReminder(reminderDate, reminderTime, channelId, ' '.join(params.split()[3:]))
         await ctx.channel.send(f"Reminder {' '.join(params.split()[3:])} with ID {remId} has successfully set to {reminderDate.replace('-', '/')} {reminderTime.replace('_',':')}.\nIt will be announced at channel <#{channelId}>")
 

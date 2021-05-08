@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import discord
 from discord.ext import commands
 import pandas as pd
+from psycopg2.errors import InFailedSqlTransaction
 from datetime import datetime as dt
 from datetime import timedelta
 import urllib.request as url
@@ -137,7 +138,10 @@ async def runTimetable(tableid):
                 await asyncio.sleep(30)
                 continue
             else:
-                await notificationChannel.send(peopleToMention+"  Hey! It's the time of "+str(dataframe.at[currentDay, currentTime]).strip()+'.')
+                try:
+                    await notificationChannel.send(peopleToMention+"  Hey! It's the time of "+str(dataframe.at[currentDay, currentTime]).strip()+'.')
+                except AttributeError:
+                    break
                 await asyncio.sleep(60)
         else:
             await asyncio.sleep(30)
@@ -158,6 +162,14 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game("t.help"))
     tableIds = db.getTableIds()
     tabletasks=[]
+    resp = await botlistsmanager.session.get("https://covid19.who.int/WHO-COVID-19-global-table-data.csv",
+        headers={ "User-Agent": "Mozilla/5.0" })
+    resp = await resp.text()
+    os.remove("covid.csv")
+    os.system("type nul > covid.csv")
+    f = open("covid.csv",'w')
+    f.write(resp)
+    f.close()
     tabletasks.append(asyncio.create_task(runReminders()))
     for t in tableIds:
         tabletasks.append(asyncio.create_task(runTimetable(t)))
@@ -168,12 +180,16 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    global db
     if message.content == f"<@{botUserId}>" or message.content == f"<@!{botUserId}>":
         await message.channel.send(f"Hey! My prefix for this server is \"{get_prefix(None,message)}\"")
     elif message.content.startswith(get_prefix(None,message)+"eval"):
         await runcode(message, message.content.split(get_prefix(None,message)+"eval ")[1].strip().strip("\t").strip("\n"))
     else:
-        await bot.process_commands(message)
+        try:
+            await bot.process_commands(message)
+        except InFailedSqlTransaction:
+            db.refresh()
 
 
 @bot.command()
@@ -402,7 +418,9 @@ Both two parameters are required.",
     else:
         await ctx.channel.send("Wrong password!")
 
-
+@bot.command()
+async def covid(ctx, cmd=None, *args):
+    await utils.covid(ctx, cmd, args, get_prefix)
 
 @bot.command()
 async def changepassword(ctx, tid=None):
@@ -598,6 +616,7 @@ Table ID must be a timetable's ID.",
             return
         nextevent = tableDf.at[dt.utcnow().weekday(), dt.fromtimestamp(nexttime).strftime("t%H_%M")]
         if str(nextevent).lower() == "nope":
+            timestamps.remove(nexttime)
             continue
         else:
             break

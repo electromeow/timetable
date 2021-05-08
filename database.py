@@ -206,7 +206,13 @@ VALUES ({randomid},{channelid},'{password.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE
             return True
         elif resp[0][0] < int(dt.utcnow().timestamp()):
             return False
-
+    def refresh(self):
+        self.con.close()
+        f = open("dbSecretInfo.json", "r")
+        dbSecretInfo = json.load(f)
+        f.close()
+        self.con = sql.connect(**dbSecretInfo)
+        self.cur = self.con.cursor()
 
     def disconnect(self):
         """Disconnects."""

@@ -19,7 +19,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import random as rd
 import discord
-import sys, os, platform
+import pandas as pd
+import sys, os, platform, json
 import time
 
 characterSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_"
@@ -99,3 +100,61 @@ async def support(ctx):
 [Join](https://discord.gg/btaGQ6zB6u)",
     colour=0xACB6C4
     ))
+
+async def covid(ctx, cmd, args, get_prefix):
+    if cmd == None or cmd == '':
+        await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}covid subcommand parameter\nLearn more using `{get_prefix(None,ctx)}help covid`")
+        return
+    comd = cmd.lower().strip()
+    covidDf = pd.read_csv("covid.csv")
+    if comd == "top10":
+        top10embed = discord.Embed(title="<:covid:840510471547125760>  COVID-19 Top 10 Countries",colour=0xACB6C4)
+        top10embed.add_field(name="Loc.", value='\n'.join([str(x) for x in range(1,11)]))
+        top10embed.add_field(name="Countries", value='\n'.join(covidDf.iloc[1:11,0].values))
+        top10embed.add_field(name="Total Cases", value='\n'.join(map(lambda x: str(x), covidDf.iloc[1:11,2].values)))
+        top10embed.add_field(name="Source: [WHO](https://covid19.who.int)", value="_ _", inline=False)
+        await ctx.channel.send(embed=top10embed)
+
+
+    elif comd == "country" or comd == "co" or comd=="global":
+        if len(args) < 1 and comd == "global":
+            await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}covid country country_name/2_letter_country_code\n\
+You can both use the country name or 2 letter country code(e.g. US)\n\
+You can shortly write co instead of country.")
+            return
+        if args[0].lower().strip() == "global":
+            await ctx.channel.send(f"Please use {get_prefix(None,ctx)}covid global")
+            return
+        if comd != "global":
+            f = open("countrycodes.json",'r')
+            countrycodes = json.load(f)
+            f.close()
+            countryData = covidDf.loc[covidDf["Name"] == ' '.join(args).title()]
+            print(countryData)
+            countryName = ' '.join(args).title()
+            if len(countryData.index) < 1:
+                try:
+                    countryName = countrycodes[' '.join(args).upper()]
+                    countryData = covidDf.loc[covidDf["Name"] == countryName]
+                    if len(set(countryData.index)) < 1:
+                        raise Exception("There isn't a with that name.")
+                except:
+                    await ctx.channel.send("Can't find a country with that name or country code!")
+                    return
+            countryembed = discord.Embed(title=f"<:covid:840510471547125760>  COVID-19 Stats for {countryName.replace('[1]','')}", colour=0xACB6C4)
+
+        else:
+            countryName = "Global"
+            countryData = covidDf.loc[covidDf["Name"] == "Global"]
+            countryembed = discord.Embed(title=f"<:covid:840510471547125760>  Global COVID-19 Stats", colour=0xACB6C4)
+        countryembed.add_field(name="Total Cases", value=countryData.iloc[:,2].values[0])
+        countryembed.add_field(name="Daily Cases", value=countryData.iloc[:,6].values[0])
+        countryembed.add_field(name="Weekly Cases", value=countryData.iloc[:,4].values[0])
+        countryembed.add_field(name="Case Density", value=str(round(countryData.iloc[:,3].values[0]/1000,4))+'%')
+        countryembed.add_field(name="Total Deaths", value=countryData.iloc[:,4].values[0])
+        countryembed.add_field(name="Daily Deaths", value=countryData.iloc[:,11].values[0])
+        countryembed.add_field(name="Weekly Deaths", value=countryData.iloc[:,9].values[0])
+        countryembed.add_field(name="_ _", value="Source: [WHO](https://covid19.who.int)", inline=False)
+        await ctx.channel.send(embed=countryembed)
+    else:
+        await ctx.channel.send(f"I can't see a command with that name. To learn about covid command's usage, use `{get_prefix(None,ctx)}help covid` command.")

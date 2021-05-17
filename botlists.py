@@ -13,8 +13,8 @@ class BotLists:
         f.close()
         self.db = db
         self.session = aiohttp.ClientSession()
-    """
-    async def isVoted(uid):
+
+    async def isVoted(self, uid):
         if self.db.checkVotedUser(uid):
             return True
         else:
@@ -25,15 +25,12 @@ class BotLists:
                 return True
             else:
                 return False
-    Will be used when bot is approved in top.gg
-    """
+
     async def postServerCount(self, svcount):
-        """
-        self.session.post(TOPGGBASE+"/stats",
+
+        await self.session.post(TOPGGBASE+"/stats",
             headers={"Authorization":self.tokens["topgg"]},
             data={"server_count":svcount})
-        Will be used when bot is approved in top.gg
-        """
         await self.session.post(BOTSGGBASE+"/stats",
             headers={"Authorization":self.tokens["botsgg"]},
             data={"guildCount":svcount})

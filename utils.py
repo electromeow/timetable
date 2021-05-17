@@ -101,7 +101,10 @@ async def support(ctx):
     colour=0xACB6C4
     ))
 
-async def covid(ctx, cmd, args, get_prefix):
+async def covid(ctx, cmd, args, get_prefix,botlistsmanager):
+    if not await botlistsmanager.isVoted(ctx.author.id):
+        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        return
     if cmd == None or cmd == '':
         await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}covid subcommand parameter\nLearn more using `{get_prefix(None,ctx)}help covid`")
         return
@@ -112,19 +115,20 @@ async def covid(ctx, cmd, args, get_prefix):
         top10embed.add_field(name="Loc.", value='\n'.join([str(x) for x in range(1,11)]))
         top10embed.add_field(name="Countries", value='\n'.join(covidDf.iloc[1:11,0].values))
         top10embed.add_field(name="Total Cases", value='\n'.join(map(lambda x: str(x), covidDf.iloc[1:11,2].values)))
-        top10embed.add_field(name="Source: [WHO](https://covid19.who.int)", value="_ _", inline=False)
+        top10embed.add_field(name="_ _", value="Source: [WHO](https://covid19.who.int)", inline=False)
         await ctx.channel.send(embed=top10embed)
 
 
     elif comd == "country" or comd == "co" or comd=="global":
-        if len(args) < 1 and comd == "global":
+        if len(args) < 1 and comd != "global":
             await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}covid country country_name/2_letter_country_code\n\
 You can both use the country name or 2 letter country code(e.g. US)\n\
 You can shortly write co instead of country.")
             return
-        if args[0].lower().strip() == "global":
-            await ctx.channel.send(f"Please use {get_prefix(None,ctx)}covid global")
-            return
+        if len(args) >= 1:
+            if args[0].lower().strip() == "global":
+                await ctx.channel.send(f"Please use {get_prefix(None,ctx)}covid global")
+                return
         if comd != "global":
             f = open("countrycodes.json",'r')
             countrycodes = json.load(f)
@@ -158,3 +162,9 @@ You can shortly write co instead of country.")
         await ctx.channel.send(embed=countryembed)
     else:
         await ctx.channel.send(f"I can't see a command with that name. To learn about covid command's usage, use `{get_prefix(None,ctx)}help covid` command.")
+
+
+async def serverinfo(ctx):
+    svinfoembed = discord.Embed(title=ctx.guild.name, colour=0xACB6C4)
+    svinfoembed.add_field(name="Owner", value=f"<@!{ctx.guild.owner.id}>")
+    svinfoembed.add_field(name="", value=f"")

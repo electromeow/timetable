@@ -36,9 +36,7 @@ Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/m
 Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
 Note: There is no difference between delete and remove or add and create subcommands.", colour=0xACB6C4))
         return
-    cmand = cmd.lower().strip()
-    print(args)
-    if len(args) < 4:
+    if len(args) < 1:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Subcommands add/create:\n\
 Usage: {get_prefix(None,ctx)}reminder add/create time date channel name\n\
@@ -49,8 +47,18 @@ Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/m
 Usage: {get_prefix(None, ctx)}reminder remove/delete ID\n\
 Note: There is no difference between delete and remove or add and create subcommands.", colour=0xACB6C4))
         return
+    cmand = cmd.lower().strip()
+    print(args)
     params = ' '.join(args)
     if cmand == "create" or cmand == "add":
+        if len(args) < 4:
+            await ctx.channel.send(embed=discord.Embed(
+                description=f"Usage: {get_prefix(None, ctx)}reminder add/create time date channel name\n\
+Channel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\n\
+Time should be a valid time in HH:MM format and in UTC/GMT timezone.\n\
+Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.",
+                colour=0xACB6C4))
+            return
         if params.find("@everyone") > -1 or params.find("@here") > -1:
             await ctx.channel.send("Did you think that you are intelligent enough?")
             return
@@ -119,7 +127,7 @@ Don't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/m
         await ctx.channel.send(f"Reminder {' '.join(params.split()[3:])} with ID {remId} has successfully set to {reminderDate.replace('-', '/')} {reminderTime.replace('_',':')}.\nIt will be announced at channel <#{channelId}>")
 
     elif cmand == "delete" or cmand == "remove":
-        if len(args)==1:
+        if len(args)>=1:
             remId = re.search(r'([1-9])([0-9]{5})', args[0])
             if remId is None:
                 await ctx.channel.send(embed=discord.Embed(

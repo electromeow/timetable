@@ -29,7 +29,6 @@ ESCAPEDSINGLEQUOTE = "\\'"
 
 class Connection:
 
-
     def __init__(self):
         """Connects to the database."""
         f = open("dbSecretInfo.json", "r")
@@ -47,26 +46,42 @@ class Connection:
 
     def getPrefix(self, svid):
         """Gets prefix of the server with given ID from database."""
-        self.cur.execute(f"SELECT pf FROM prefixes WHERE svid = {svid}")
+        try:
+            self.cur.execute(f"SELECT pf FROM prefixes WHERE svid = {svid}")
+        except:
+            self.refresh()
+            self.cur.execute(f"SELECT pf FROM prefixes WHERE svid = {svid}")
         resp = self.cur.fetchall()
         return resp[0][0]
 
 
     def addPrefix(self, svid, pf):
         """Adds a server with its prefix to database."""
-        self.cur.execute(f"INSERT INTO prefixes(svid, pf) VALUES ({svid},'{pf}')")
+        try:
+            self.cur.execute(f"INSERT INTO prefixes(svid, pf) VALUES ({svid},'{pf.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE)}')")
+        except:
+            self.refresh()
+            self.cur.execute(f"INSERT INTO prefixes(svid, pf) VALUES ({svid},'{pf.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE)}')")
         self.con.commit()
 
 
     def changePrefix(self, svid, pf):
         """Changes a prefix of a server database."""
-        self.cur.execute(f"UPDATE prefixes SET pf = '{pf}' WHERE svid = {svid}")
+        try:
+            self.cur.execute(f"UPDATE prefixes SET pf = '{pf.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE)}' WHERE svid = {svid}")
+        except:
+            self.refresh()
+            self.cur.execute(f"UPDATE prefixes SET pf = '{pf.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE)}' WHERE svid = {svid}")
         self.con.commit()
 
 
     def delPrefix(self, svid):
         """Deletes a server from prefixes table in the database."""
-        self.cur.execute(f"DELETE FROM prefixes WHERE svid = {svid}")
+        try:
+            self.cur.execute(f"DELETE FROM prefixes WHERE svid = {svid}")
+        except:
+            self.refresh()
+            self.cur.execute(f"DELETE FROM prefixes WHERE svid = {svid}")
         self.con.commit()
 
 
@@ -200,7 +215,7 @@ VALUES ({randomid},{channelid},'{password.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE
         """Checks a user if voted in last 5 days."""
         self.cur.execute(f"SELECT validuntil FROM votes WHERE uid={uid}")
         resp = self.cur.fetchall()
-        if len(resp[0]) < 1:
+        if len(resp) < 1:
             return False
         if resp[0][0] >= int(dt.utcnow().timestamp()):
             return True

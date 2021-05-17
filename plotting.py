@@ -22,7 +22,10 @@ import discord
 import os, re
 from PIL import Image
 
-async def plottable(ctx, db, tableid, get_prefix):
+async def plottable(ctx, db, tableid, get_prefix, botlistsmanager):
+    if not await botlistsmanager.isVoted(ctx.author.id):
+        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        return
     if tableid == None or tableid == '':
         await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}show table_id")
         return

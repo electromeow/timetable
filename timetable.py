@@ -27,8 +27,12 @@ ownerId = 754327007331876945
 timeregex = r'(([01]\d)|(\d)|(2[0123]))[:.]([012345]\d)'
 
 async def timetable(ctx,bot,db,runTimetable):
-    await ctx.channel.send("""Can you enter the times(in UTC) in your timetable seperated with commas? For example:
-`09:00,09:40,10:20`""")
+    ttembed=discord.Embed(title="Create a new timetable",description="""Can you enter the times(in UTC) in your timetable seperated with commas? For example:
+`09:00,09:40,10:20`
+You can write cancel the command anytime by writing 'cancel'.
+There is an example usage of the command below ⬇️""", colour=0xACB6C4)
+    ttembed.set_image(url="https://i.ibb.co/pRBftnx/unknown.png")
+    await ctx.channel.send(embed=ttembed)
     try:
         ttLessontimes = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:

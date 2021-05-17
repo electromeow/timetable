@@ -84,7 +84,11 @@ def getDate(option="today"):
 
 
 def get_prefix_tuple(client, message):
-    pf = db.getPrefix(message.guild.id)
+    try:
+        pf = db.getPrefix(message.guild.id)
+    except:
+        db.refresh()
+        pf = db.getPrefix(message.guild.id)
     return (pf,
     f"{pf} ",
     f"<@!{botUserId}>",
@@ -92,7 +96,8 @@ def get_prefix_tuple(client, message):
 
 
 def get_prefix(client, message):
-    return db.getPrefix(message.guild.id)
+    pf = db.getPrefix(message.guild.id)
+    return pf
 
 
 async def runReminders():
@@ -165,7 +170,6 @@ async def on_ready():
     resp = await botlistsmanager.session.get("https://covid19.who.int/WHO-COVID-19-global-table-data.csv",
         headers={ "User-Agent": "Mozilla/5.0" })
     resp = await resp.text()
-    os.remove("covid.csv")
     os.system("type nul > covid.csv")
     f = open("covid.csv",'w')
     f.write(resp)
@@ -188,8 +192,9 @@ async def on_message(message):
     else:
         try:
             await bot.process_commands(message)
-        except InFailedSqlTransaction:
+        except:
             db.refresh()
+            await bot.process_commands(message)
 
 
 @bot.command()
@@ -247,7 +252,8 @@ If you love me, please don't forget to add me on your other servers, join to my 
             except:
                 pass
     logchannel = bot.get_channel(839766392156717056)
-    await logchannel.send(f"Bot joined to a new server: {sv.name}")
+    msg = await logchannel.send(f"Bot joined to a new server: {sv.name}")
+    await msg.add_reaction('🎉')
     await botlistsmanager.postServerCount(len(bot.guilds))
 
 @bot.event
@@ -256,7 +262,8 @@ async def on_guild_remove(sv):
     global botlistsmanager
     db.delPrefix(sv.id)
     logchannel = bot.get_channel(839766392156717056)
-    await logchannel.send(f"Bot removed from a server: {sv.name}")
+    msg = await logchannel.send(f"Bot removed from a server: {sv.name}")
+    await msg.add_reaction('😳')
     await botlistsmanager.postServerCount(len(bot.guilds))
 
 
@@ -291,7 +298,8 @@ async def timetable(ctx):
 @bot.command()
 async def show(ctx, tableid=None):
     global db
-    await plottable(ctx, db, tableid, get_prefix)
+    global botlistsmanager
+    await plottable(ctx, db, tableid, get_prefix, botlistsmanager)
 
 
 @bot.command()
@@ -420,7 +428,8 @@ Both two parameters are required.",
 
 @bot.command()
 async def covid(ctx, cmd=None, *args):
-    await utils.covid(ctx, cmd, args, get_prefix)
+    global botlistsmanager
+    await utils.covid(ctx, cmd, args, get_prefix, botlistsmanager)
 
 @bot.command()
 async def changepassword(ctx, tid=None):
@@ -470,6 +479,10 @@ Table ID must be a timetable's ID.",
 @bot.command()
 async def download(ctx, tid=None):
     global db
+    global botlistsmanager
+    if not await botlistsmanager.isVoted(ctx.author.id):
+        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        return
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None,ctx)}download table_id\n\
@@ -572,6 +585,10 @@ Event name should be a proper event name.",
 @bot.command()
 async def reminder(ctx, cmd=None, *args):
     global db
+    global botlistsmanager
+    if not await botlistsmanager.isVoted(ctx.author.id):
+        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        return
     await reminderfile.reminder(ctx, cmd, args, bot, db, getDate, getDayTime, get_prefix)
 
 
@@ -592,6 +609,10 @@ async def prefix(ctx, pf=""):
 @bot.command()
 async def next(ctx, tid=None):
     global db
+    global botlistsmanager
+    if not await botlistsmanager.isVoted(ctx.author.id):
+        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        return
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
         description=f"Usage: {get_prefix(None, ctx)}next table_id\n\

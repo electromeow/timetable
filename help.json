@@ -1,7 +1,16 @@
 {
   "": [
     "Help",
-    "**Commands:**\nPlease use **<prefix>help command_name** for help about commands.\ntimetable\ndelete\nchangechannel\nchangepassword\nchangemention\nserverinfo\nnext\ntoken\nshow\ndownload\ncountdown\nstats\nreport\nsuggest\nsupport\nvote\ncovid\ncontribute\ninvite\nreminder\nprefix"
+    "**Commands:**\nPlease use **<prefix>help command_name** for help about commands.",
+    [
+      "_ _",
+      "timetable\ndelete\nchangechannel\nchangepassword\nchangemention\nserverinfo\nnext\ntoken\nshow\ndownload\ncountdown"
+    ],
+    [
+      "_ _",
+      "stats\nreport\nsuggest\nsupport\nvote\ncovid\ncontribute\ninvite\nreminder\nprefix"
+    ],
+    ["_ _", "_ _"]
   ],
   "timetable": [
     "Timetable",

@@ -307,7 +307,11 @@ async def help(ctx, helpTopic=""):
     file = open("help.json",'r')
     helpcommands = json.load(file)
     if helpTopic in helpcommands:
-        await ctx.channel.send(embed=discord.Embed(title=helpcommands[helpTopic][0],description=helpcommands[helpTopic][1].replace("<prefix>",get_prefix(None,ctx))+"\n\nNote: In all commands, time is referenced to UTC for global use of the bot. If you don't know your timezone by UTC, [click here](<https://www.timeanddate.com/time/map>) to learn.",colour=0xACB6C4))
+        helpembed = discord.Embed(title=helpcommands[helpTopic][0],description=helpcommands[helpTopic][1].replace("<prefix>",get_prefix(None,ctx)),colour=0xACB6C4)
+        for field in helpcommands[helpTopic][2:]:
+            print(field)
+            helpembed.add_field(name=field[0], value=field[1], inline=field[2] if len(field) > 2 else True)
+        await ctx.channel.send(embed=helpembed)
     else:
         await ctx.channel.send("There isn't a command with that name.")
     file.close()

@@ -166,5 +166,14 @@ You can shortly write co instead of country.")
 
 async def serverinfo(ctx):
     svinfoembed = discord.Embed(title=ctx.guild.name, colour=0xACB6C4)
-    svinfoembed.add_field(name="Owner", value=f"<@!{ctx.guild.owner.id}>")
-    svinfoembed.add_field(name="", value=f"")
+    svinfoembed.add_field(name="<:textchannel:844257666174943253>  Text Channels", value=str(len(ctx.guild.text_channels)))
+    svinfoembed.add_field(name="<:voicechannel:844257666141519882>  Voice Channel", value=str(len(ctx.guild.voice_channels)))
+    svinfoembed.add_field(name="<:stagechannel:844262408134721576>  Stage Channels", value=str(len(ctx.guild.stage_channels)))
+    svinfoembed.add_field(name="<:ruleschannel:844264338427871312>  Rules Channel", value=('<#'+str(ctx.guild.rules_channel.id)+'>') if ctx.guild.rules_channel!=None else "Nope")
+    svinfoembed.add_field(name="<:members:844268367950774282>  Members", value=str(ctx.guild.member_count))
+    guildCreation = ctx.guild.created_at
+    svinfoembed.add_field(name="📅  Created At", value=f"{guildCreation.day}/{guildCreation.month}/{guildCreation.year} {guildCreation.hour}:{guildCreation.minute}")
+    svinfoembed.add_field(name="<:discordid:844272660291518484>  Server ID", value=str(ctx.guild.id))
+    svinfoembed.add_field(name="<:role:844274430375886907>  Roles", value=str(len(ctx.guild.roles)))
+    svinfoembed.set_thumbnail(url=str(ctx.guild.icon_url))
+    await ctx.channel.send(embed=svinfoembed)

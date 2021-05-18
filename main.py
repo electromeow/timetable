@@ -277,7 +277,7 @@ async def contribute(ctx):
     await promotion.contribute(ctx)
 
 
-@bot.command()
+@bot.command(aliases=("stat","statistics"))
 async def stats(ctx):
     await utils.stats(ctx,startuptime,bot,db)
 
@@ -289,7 +289,7 @@ async def invite(ctx):
 async def vote(ctx):
     await promotion.vote(ctx)
 
-@bot.command()
+@bot.command(aliases=("tt",))
 async def timetable(ctx):
     global db
     await timetablefile.timetable(ctx,bot,db,runTimetable)
@@ -302,7 +302,7 @@ async def show(ctx, tableid=None):
     await plottable(ctx, db, tableid, get_prefix, botlistsmanager)
 
 
-@bot.command()
+@bot.command(aliases=('h',))
 async def help(ctx, helpTopic=""):
     file = open("help.json",'r')
     helpcommands = json.load(file)
@@ -426,7 +426,7 @@ Both two parameters are required.",
     else:
         await ctx.channel.send("Wrong password!")
 
-@bot.command()
+@bot.command(aliases=("corona",))
 async def covid(ctx, cmd=None, *args):
     global botlistsmanager
     await utils.covid(ctx, cmd, args, get_prefix, botlistsmanager)
@@ -476,7 +476,7 @@ Table ID must be a timetable's ID.",
 
 
 
-@bot.command()
+@bot.command(aliases=("dl",))
 async def download(ctx, tid=None):
     global db
     global botlistsmanager
@@ -592,19 +592,26 @@ async def reminder(ctx, cmd=None, *args):
     await reminderfile.reminder(ctx, cmd, args, bot, db, getDate, getDayTime, get_prefix)
 
 
-@bot.command()
-async def prefix(ctx, pf=""):
+@bot.command(aliases=("changeprefix","setprefix"))
+async def prefix(ctx, pf=''):
     global db
     if ctx.author.guild_permissions.manage_guild:
         if pf == '' or pf.isspace():
-            db.changePrefix(ctx.guild.id, '')
-            await ctx.channel.send("You can now use me without a prefix.")
+            await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}prefix NewPrefix")
             return
         else:
             db.changePrefix(ctx.guild.id, pf)
             await ctx.channel.send(f"Prefix for this server is changed to: {pf}")
     else:
         await ctx.channel.send("I think you don't have the permission to do that. Pick that 'Manage Server' permission, then maybe.")
+
+@bot.command(aliases=("server","si","server-info"))
+async def serverinfo(ctx):
+    global botlistsmanager
+    if not await botlistsmanager.isVoted(ctx.author.id):
+        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        return
+    await utils.serverinfo(ctx)
 
 @bot.command()
 async def next(ctx, tid=None):
@@ -648,7 +655,7 @@ It begins at {dt.fromtimestamp(nexttime).strftime('%H:%M.')} UTC\n\
 You have {int((nexttime-dt.utcnow().timestamp())//(60*60)) if (nexttime-dt.utcnow().timestamp())//(60*60) > 0 else ''} \
 {'hours, ' if (nexttime-dt.utcnow().timestamp())//(60*60)>1 else ''}\
 {'hour, ' if (nexttime-dt.utcnow().timestamp())//(60*60) == 1 else ''}\
-{int(((nexttime-dt.utcnow().timestamp())-((nexttime-dt.utcnow().timestamp())//(60*60)))//60)} \
+{int(((nexttime-dt.utcnow().timestamp())-((nexttime-dt.utcnow().timestamp())//(60*60)*60*60))//60)} \
 {'minutes' if ((nexttime-dt.utcnow().timestamp())-((nexttime-dt.utcnow().timestamp())//(60*60)))//60 > 1 else 'minute'}\
  before it begins.",
         colour=0xACB6C4))

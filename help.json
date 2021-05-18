@@ -1,7 +1,7 @@
 {
   "": [
     "Help",
-    "**Commands:**\nPlease use **<prefix>help command_name** for help about commands.\ntimetable\ndelete\nchangechannel\nchangepassword\nchangemention\nnext\ntoken\nshow\ndownload\ncountdown\nstats\nreport\nsuggest\nsupport\nvote\ncovid\ncontribute\ninvite\nreminder\nprefix"
+    "**Commands:**\nPlease use **<prefix>help command_name** for help about commands.\ntimetable\ndelete\nchangechannel\nchangepassword\nchangemention\nserverinfo\nnext\ntoken\nshow\ndownload\ncountdown\nstats\nreport\nsuggest\nsupport\nvote\ncovid\ncontribute\ninvite\nreminder\nprefix"
   ],
   "timetable": [
     "Timetable",
@@ -76,5 +76,9 @@
   "covid": [
     "COVID",
     "**Usage:** <prefix>covid subcommand parameters\n\n**Subcommands:**\n\n**global:** <prefix>covid global\nShows global pandemic stats\n\n**country:** <prefix>covid country country_name/2_letter_country_code\nShows pandemic stats of that country.\nYou can shortly write co instead of country.\n\n**top10:** <prefix>covid top10\nShows top 10 countries with most cases."
+  ],
+  "serverinfo": [
+    "Server Info",
+    "**Usage:** <prefix>serverinfo\nShows the statictics and information about the server."
   ]
 }

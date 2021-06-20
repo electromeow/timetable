@@ -8,7 +8,7 @@ DBOATSBASE = "https://discord.boats/api/bot/789202881336311849"
 
 class BotLists:
     def __init__(self, db):
-        f = open("botlisttokens.json",'r')
+        f = open("./secret/botlisttokens.json",'r')
         self.tokens = json.load(f)
         f.close()
         self.db = db

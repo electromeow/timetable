@@ -20,7 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import discord
 from discord.ext import commands
 import pandas as pd
-from psycopg2.errors import InFailedSqlTransaction
 from datetime import datetime as dt
 from datetime import timedelta
 import urllib.request as url
@@ -37,7 +36,7 @@ from botlists import BotLists
 
 startuptime = time.time()
 
-f=open("token.txt", 'r')
+f=open("./secret/token.txt", 'r')
 TOKEN = f.read()
 f.close()
 db = datab.Connection()
@@ -116,7 +115,11 @@ async def runReminders():
             except Exception as e:
                 print(e)
                 timeOf.pop(rid)
-            await notificationChannel.send("Hey, it is the time of " + r[3].strip() + '.')
+            lang = db.getLang(notificationChannel.guild.id)
+            f = open("./languages/"+lang+".json", 'r')
+            strings = json.load(f)
+            f.close()
+            await notificationChannel.send(strings["announcements"] + r[3].strip() + '.')
             db.delReminder(rid)
         await asyncio.sleep(10)
 
@@ -144,7 +147,11 @@ async def runTimetable(tableid):
                 continue
             else:
                 try:
-                    await notificationChannel.send(peopleToMention+"  Hey! It's the time of "+str(dataframe.at[currentDay, currentTime]).strip()+'.')
+                    lang = db.getLang(notificationChannel.guild.id)
+                    f = open("./languages/"+lang+".json", 'r')
+                    strings = json.load(f)
+                    f.close()
+                    await notificationChannel.send(peopleToMention+"  "+strings["announcements"]+str(dataframe.at[currentDay, currentTime]).strip()+'.')
                 except AttributeError:
                     break
                 await asyncio.sleep(60)
@@ -163,7 +170,10 @@ async def on_ready():
         if g.id in prefixesdb.keys():
             pass
         else:
-            db.addPrefix(g.id, "t.")
+            db.addServer(g.id, "t.", "en")
+    for g in prefixesdb.keys():
+        if not g in tuple(map(lambda x: x.id, bot.guilds)):
+            db.delServer(g)
     await bot.change_presence(activity=discord.Game("t.help"))
     tableIds = db.getTableIds()
     tabletasks=[]
@@ -172,7 +182,7 @@ async def on_ready():
     resp = await resp.text()
     os.system("type nul > covid.csv")
     f = open("covid.csv",'w')
-    f.write(resp)
+    print(resp, file=f)
     f.close()
     tabletasks.append(asyncio.create_task(runReminders()))
     for t in tableIds:
@@ -186,7 +196,11 @@ async def on_ready():
 async def on_message(message):
     global db
     if message.content == f"<@{botUserId}>" or message.content == f"<@!{botUserId}>":
-        await message.channel.send(f"Hey! My prefix for this server is \"{get_prefix(None,message)}\"")
+        lang = db.getLang(message.guild.id)
+        f = open("./languages/"+lang+".json", 'r')
+        strings = json.load(f)
+        f.close()
+        await message.channel.send(strings["prefixforthisserver"]+'"'+get_prefix(None,message)+'"')
     elif message.content.startswith(get_prefix(None,message)+"eval"):
         await runcode(message, message.content.split(get_prefix(None,message)+"eval ")[1].strip().strip("\t").strip("\n"))
     else:
@@ -199,32 +213,41 @@ async def on_message(message):
 
 @bot.command()
 async def support(ctx):
-    await utils.support(ctx)
+    global db
+    await utils.support(ctx, db)
 
 
 @bot.command()
 async def suggest(ctx, *text):
+    global db
     suggestion_text = ' '.join(text)
     if suggestion_text == '' or suggestion_text.isspace():
-        await ctx.channel.send(f"Usage: {get_prefix(None, ctx)}suggest your_suggestions")
+        f = open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r')
+        strings = json.load(f)
+        f.close()
+        await ctx.channel.send(strings["suggestwarning"].replace("<prefix>", get_prefix(None, ctx)))
         return
-    await utils.suggest(ctx, suggestion_text, bot)
+    await utils.suggest(ctx, suggestion_text, bot, db)
 
 
 @bot.command()
 async def report(ctx, *text):
+    global db
     report_text = ' '.join(text)
     if report_text == '' or report_text.isspace():
-        await ctx.channel.send(f"Usage: {get_prefix(None, ctx)}report your_bug_report")
+        f = open("./languages/" + db.getLang(ctx.guild.id) + ".json", 'r')
+        strings = json.load(f)
+        f.close()
+        await ctx.channel.send(strings["reportwarning"].replace("<prefix>", get_prefix(None, ctx)))
         return
-    await utils.report(ctx, report_text, bot)
+    await utils.report(ctx, report_text, bot, db)
 
 
 @bot.event
 async def on_guild_join(sv):
     global db
     global botlistsmanager
-    db.addPrefix(sv.id, "t.")
+    db.addServer(sv.id, "t.", "en")
     channel = sv.system_channel
     if channel != None:
         await channel.send(embed=discord.Embed(description="Thanks for adding me to your server! My default prefix is `t.` and to see my commands, use `t.help`\n\
@@ -260,7 +283,7 @@ If you love me, please don't forget to add me on your other servers, join to my 
 async def on_guild_remove(sv):
     global db
     global botlistsmanager
-    db.delPrefix(sv.id)
+    db.delServer(sv.id)
     logchannel = bot.get_channel(839766392156717056)
     msg = await logchannel.send(f"Bot removed from a server: {sv.name}")
     await msg.add_reaction('😳')
@@ -269,12 +292,14 @@ async def on_guild_remove(sv):
 
 @bot.command()
 async def token(ctx):
-    await utils.token(ctx)
+    global db
+    await utils.token(ctx, db)
 
 
 @bot.command()
 async def contribute(ctx):
-    await promotion.contribute(ctx)
+    global db
+    await promotion.contribute(ctx, db)
 
 
 @bot.command(aliases=("stat","statistics"))
@@ -283,11 +308,13 @@ async def stats(ctx):
 
 @bot.command()
 async def invite(ctx):
-    await promotion.invite(ctx)
+    global db
+    await promotion.invite(ctx, db)
 
 @bot.command()
 async def vote(ctx):
-    await promotion.vote(ctx)
+    global db
+    await promotion.vote(ctx, db)
 
 @bot.command(aliases=("tt",))
 async def timetable(ctx):
@@ -304,104 +331,108 @@ async def show(ctx, tableid=None):
 
 @bot.command(aliases=('h',))
 async def help(ctx, helpTopic=""):
-    file = open("help.json",'r')
+    global db
+    helpTopic = helpTopic.lower().strip()
+    file = open(f"./languages/help_{db.getLang(ctx.guild.id)}.json",'r')
     helpcommands = json.load(file)
     if helpTopic in helpcommands:
+        if helpTopic == "thereisnocommand":
+            await ctx.channel.send(helpcommands["thereisnocommand"])
+            return
         helpembed = discord.Embed(title=helpcommands[helpTopic][0],description=helpcommands[helpTopic][1].replace("<prefix>",get_prefix(None,ctx)),colour=0xACB6C4)
         for field in helpcommands[helpTopic][2:]:
-            print(field)
             helpembed.add_field(name=field[0], value=field[1], inline=field[2] if len(field) > 2 else True)
         await ctx.channel.send(embed=helpembed)
     else:
-        await ctx.channel.send("There isn't a command with that name.")
+        await ctx.channel.send(helpcommands["thereisnocommand"])
     file.close()
 
 
 @bot.command()
 async def delete(ctx, tid=None):
     global db
+    lang = db.getLang(ctx.guild.id)
+    f = open("./languages/" + lang + ".json", 'r')
+    strings = json.load(f)
+    f.close()
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
-        description=f"Usage: {get_prefix(None,ctx)}delete table_id\n\
-Table ID must be a timetable's ID.",
+        description=strings["delete"][0].replace("<prefix>", get_prefix(None,ctx)),
         colour=0xACB6C4
         ))
         return
     try:
         realPassword = db.getTableInfos(tid)["password"]
     except:
-        await ctx.channel.send("I can't see a timetable with that ID.")
+        await ctx.channel.send(strings["cantsee"])
         return
-    await ctx.channel.send("Enter password for this timetable:")
+    await ctx.channel.send(strings["delete"][2])
     try:
-        getpassword = await bot.wait_for('message', check=lambda m: m.author==ctx.author and m.channel == ctx.channel,timeout=120)
+        getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
-        await ctx.channel.send("Command has canceled due to timeout.")
+        await ctx.channel.send(strings["enterpassword"])
         return
     password = getpassword.content.strip("||").strip()
     try:
         await getpassword.delete()
     except:
-        await ctx.channel.send("I don't have the permission to delete messages on this channel.")
+        await ctx.channel.send(strings["timetable"][19])
     if password==realPassword:
         db.delTable(tid)
-        await ctx.channel.send(f"Timetable with ID {tid} has successfully deleted.")
+        await ctx.channel.send(strings["delete"][2].replace("{tid}", tid))
     else:
-        await ctx.channel.send("Wrong password!")
+        await ctx.channel.send(strings["wrongpassword"])
 
 
 @bot.command()
 async def changemention(ctx, tid=None, *mentions):
     global db
+    strings = json.load(open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r'))
     if tid == None or tid == '':
         await ctx.channel.send(embed=discord.Embed(
-        description=f"Usage: {get_prefix(None,ctx)}changemention table_id mentions\n\
-Table ID must be a timetable's ID.\n\
-Mentions should be a series of roles/users' mentions. You can make it blank by sending a blank message like this: \* *.",
+        description=strings["changemention"][0].replace("<prefix>", get_prefix(None,ctx)),
         colour=0xACB6C4
         ))
         return
     mention = ' '.join(mentions)
     if mentions.find("@everyone") > -1 or mentions.find("@here") > -1:
-        await ctx.channel.send("Did you think that you are intelligent enough?")
+        await ctx.channel.send(strings["timetable"][17])
         return
     try:
         tableInfos = db.getTableInfos(tid)
     except:
-        await ctx.channel.send("I can't see a timetable with that ID.")
+        await ctx.channel.send(strings["cantsee"])
         return
     realPassword = tableInfos["password"]
     channelid = tableInfos["channel"]
-    await ctx.channel.send("Enter password for this timetable:")
+    await ctx.channel.send(strings["enterpassword"])
     try:
         getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
-        await ctx.channel.send("Command has canceled due to timeout.")
+        await ctx.channel.send(strings["timetable"][2])
         return
     password = getpassword.content.strip("||").strip()
     try:
         await getpassword.delete()
     except:
-        await ctx.channel.send("I don't have the permission to delete messages on this channel.")
+        await ctx.channel.send(strings["timetable"][19])
     if password == realPassword:
         db.changeTableInfo(tid, channelid, realPassword, mention)
         if mention.isspace() or mention == '':
-            await ctx.channel.send(f"Mention of the timetable with the {tid} successfully changed to nothing. It will no longer mention people.")
+            await ctx.channel.send(strings["changemention"][1].replace("{tid}", tid))
         else:
-            await ctx.channel.send(f"Mention of the timetable with ID {tid} successfully changed to {mention}")
+            await ctx.channel.send(strings["changemention"][2].replace("{tid}", tid).replace("{mention}", mention))
     else:
-        await ctx.channel.send("Wrong password!")
+        await ctx.channel.send(strings["wrongpassword"])
 
 
 @bot.command()
 async def changechannel(ctx, tid=None, channel=None):
     global db
+    strings = json.load(open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r'))
     if tid == '' or tid == None or channel == '' or channel == None:
         await ctx.channel.send(embed=discord.Embed(
-        description=f"Usage: {get_prefix(None,ctx)}changechannel table_id channel\n\
-Table ID must be a timetable ID.\n\
-Channel must be a channel's mention or ID.\n\
-Both two parameters are required.",
+        description=strings["changechannel"][0].replace("<prefix>", get_prefix(None,ctx)),
         colour=0xACB6C4
         ))
         return
@@ -409,74 +440,77 @@ Both two parameters are required.",
     try:
         tableInfos = db.getTableInfos(tid)
     except:
-        await ctx.channel.send("I can't see a timetable with that ID.")
+        await ctx.channel.send(strings["cantsee"])
         return
     realPassword = tableInfos["password"]
     mention = tableInfos["mention"]
-    await ctx.channel.send("Enter password for this timetable:")
+    await ctx.channel.send(strings["enterpassword"])
     try:
         getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
-        await ctx.channel.send("Command has canceled due to timeout.")
+        await ctx.channel.send(strings["timetable"][2])
         return
     password = getpassword.content.strip("||").strip()
     try:
         await getpassword.delete()
     except:
-        await ctx.channel.send("I don't have the permission to delete messages on this channel.")
+        await ctx.channel.send(strings["timetable"][19])
     if password == realPassword:
         db.changeTableInfo(tid, channelid, realPassword, mention)
-        await ctx.channel.send(f"Channel of the timetable with ID {tid} successfully changed to <#{channelid}>")
+        await ctx.channel.send(strings["changechannel"][2]
+            .replace("{tid}", tid)
+            .replace("{channelid}", channelid))
     else:
-        await ctx.channel.send("Wrong password!")
+        await ctx.channel.send(strings[wrongpassword])
 
 @bot.command(aliases=("corona",))
 async def covid(ctx, cmd=None, *args):
     global botlistsmanager
-    await utils.covid(ctx, cmd, args, get_prefix, botlistsmanager)
+    global db
+    await utils.covid(ctx, cmd, args, get_prefix, botlistsmanager, db)
 
 @bot.command()
 async def changepassword(ctx, tid=None):
     global db
+    strings = json.load(open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r'))
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
-        description=f"Usage: {get_prefix(None,ctx)}changepassword table_id\n\
-Table ID must be a timetable's ID.",
+        description=strings["changepassword"][0].replace("<prefix>", get_prefix(None,ctx)),
         colour=0xACB6C4
         ))
         return
     try:
         tableInfos = db.getTableInfos(tid)
     except:
-        await ctx.channel.send("I can't see a timetable with that ID.")
+        await ctx.channel.send(strings["cantsee"])
         return
     channelid = tableInfos["channel"]
     realPassword = tableInfos["password"]
     mention = tableInfos["mention"]
-    await ctx.channel.send("Enter password for this timetable:")
+    await ctx.channel.send(strings["enterpassword"])
     try:
         getpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
     except asyncio.TimeoutError:
-        await ctx.channel.send("Command has canceled due to timeout.")
+        await ctx.channel.send(strings["timetable"][2])
         return
     password = getpassword.content.strip("||").strip()
     try:
         await getpassword.delete()
     except:
-        await ctx.channel.send("I don't have the permission to delete messages on this channel.")
+        await ctx.channel.send(strings["timetable"][19])
     if password == realPassword:
-        await ctx.channel.send("PLease enter the new password:")
+        await ctx.channel.send(strings["changepassword"][1])
         try:
             getnewpassword = await bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel,timeout=120)
         except asyncio.TimeoutError:
-            await ctx.channel.send("Command has canceled due to timeout.")
+            await ctx.channel.send(strings["timetable"][2])
             return
         newpassword = getnewpassword.content
         await getnewpassword.delete()
         db.changeTableInfo(tid, channelid, newpassword, mention)
-        await ctx.channel.send(f"Password of the timetable with ID {tid} successfully changed.")
+        await ctx.channel.send(strings["changepassword"][2].replace("{tid}",tid))
     else:
-        await ctx.channel.send("Wrong password!")
+        await ctx.channel.send(strings["wrongpassword"])
 
 
 
@@ -484,13 +518,13 @@ Table ID must be a timetable's ID.",
 async def download(ctx, tid=None):
     global db
     global botlistsmanager
+    strings = json.load(open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r'))
     if not await botlistsmanager.isVoted(ctx.author.id):
-        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        await ctx.channel.send(embed=discord.Embed(title=strings["votetouse"][0], description=strings["votetouse"][1], colour=0xACB6C4))
         return
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
-        description=f"Usage: {get_prefix(None,ctx)}download table_id\n\
-Table ID must be a timetable's ID",
+        description=strings["download"].replace("<prefix>", get_prefix(None,ctx)),
         colour=0xACB6C4
         ))
         return
@@ -498,14 +532,13 @@ Table ID must be a timetable's ID",
         re.match(r'[123456789](\d){5}', tid)
         if re.match == None:
             await ctx.channel.send(embed=discord.Embed(
-            description=f"Usage: {get_prefix(None,ctx)}download table_id\n\
-Table ID must be a timetable's ID",
+            description=strings["download"].replace("<prefix>", get_prefix(None,ctx)),
             colour=0xACB6C4
             ))
             return
         tableDf = db.getTable(tid)
     except:
-        await ctx.channel.send("I can't see a timetable with that ID.")
+        await ctx.channel.send(strings["cantsee"])
         return
     tableDf.columns = list(map(lambda x: x.lstrip('t').replace('_',':'), tableDf.columns))
     tableDf.to_csv(f"table-{tid}.csv", sep=';', index=False)
@@ -559,39 +592,40 @@ async def runcode(ctx, codeblock):
 
 @bot.command()
 async def countdown(ctx, seconds=None, *name):
+    global db
+    strings = json.load(open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r'))
     if seconds == '' or seconds == None or name == tuple():
         await ctx.channel.send(embed=discord.Embed(
-        description=f"Usage: {get_prefix(None, ctx)}countdown x event_name\n\
-x must be a number of seconds.\n\
-Event name should be a proper event name.",
+        description=strings["countdown"][0].replace("<prefix>", get_prefix(None, ctx)),
         colour=0xACB6C4
         ))
         return
     try:
         secs = int(seconds)
     except:
-        await ctx.channel.send("I can't wait for a NotANumber amount of seconds.\nYou are so intelligent, you should definitely become a bug hunter when you're an adult!")
+        await ctx.channel.send(strings["countdown"][1])
         return
     if secs > (24*60*60):
-        await ctx.channel.send("You can't countdown more than a day. Instead use reminders.")
+        await ctx.channel.send(strings["countdown"][2])
         return
     eventname = ' '.join(name)
     if eventname.find("@everyone") > -1 or eventname.find("@here") > -1:
-        await ctx.channel.send("Did you think that you are intelligent enough?")
+        await ctx.channel.send(strings["timetable"][17])
         return
     if eventname == '' or eventname.isspace():
-        await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}countdown amount(seconds) event_name")
+        await ctx.channel.send(strings["countdown"][0])
         return
     await asyncio.sleep(secs)
-    await ctx.channel.send(f"Hey <@!{ctx.author.id}> , it's time for {eventname}.")
+    await ctx.channel.send(strings["countdown"][3].replace("{author}", ctx.author.id).replace("{eventname}", eventname))
 
 
 @bot.command()
 async def reminder(ctx, cmd=None, *args):
     global db
     global botlistsmanager
+    strings = json.load(open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r'))
     if not await botlistsmanager.isVoted(ctx.author.id):
-        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        await ctx.channel.send(embed=discord.Embed(title=strings["votetouse"][0], description=strings["votetouse"][1], colour=0xACB6C4))
         return
     await reminderfile.reminder(ctx, cmd, args, bot, db, getDate, getDayTime, get_prefix)
 
@@ -599,42 +633,45 @@ async def reminder(ctx, cmd=None, *args):
 @bot.command(aliases=("changeprefix","setprefix"))
 async def prefix(ctx, pf=''):
     global db
+    strings = json.load(open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r'))
     if ctx.author.guild_permissions.manage_guild:
         if pf == '' or pf.isspace():
-            await ctx.channel.send(f"Usage: {get_prefix(None,ctx)}prefix NewPrefix")
+            await ctx.channel.send(strings["prefix"][0].replace("<prefix>", get_prefix(None,ctx)))
             return
         else:
             db.changePrefix(ctx.guild.id, pf)
-            await ctx.channel.send(f"Prefix for this server is changed to: {pf}")
+            await ctx.channel.send(strings["prefix"][1].replace("{pf}", pf))
     else:
-        await ctx.channel.send("I think you don't have the permission to do that. Pick that 'Manage Server' permission, then maybe.")
+        await ctx.channel.send(strings["prefix"][2])
 
 @bot.command(aliases=("server","si","server-info"))
 async def serverinfo(ctx):
+    global db
     global botlistsmanager
+    strings = json.load(open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r'))
     if not await botlistsmanager.isVoted(ctx.author.id):
-        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        await ctx.channel.send(embed=discord.Embed(title=strings["votetouse"][0], description=strings["votetouse"][2], colour=0xACB6C4))
         return
-    await utils.serverinfo(ctx)
+    await utils.serverinfo(ctx, db)
 
 @bot.command()
 async def next(ctx, tid=None):
     global db
     global botlistsmanager
+    strings = json.load(open("./languages/"+db.getLang(ctx.guild.id)+".json", 'r'))
     if not await botlistsmanager.isVoted(ctx.author.id):
-        await ctx.channel.send(embed=discord.Embed(title="Vote to use this command!", description="[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)", colour=0xACB6C4))
+        await ctx.channel.send(embed=discord.Embed(title=strings["votetouse"][0], description=strings["votetouse"][1], colour=0xACB6C4))
         return
     if tid == '' or tid == None:
         await ctx.channel.send(embed=discord.Embed(
-        description=f"Usage: {get_prefix(None, ctx)}next table_id\n\
-Table ID must be a timetable's ID.",
+        description=strings["next"][0].replace("<prefix>", get_prefix(None, ctx)),
         colour=0xACB6C4
         ))
         return
     try:
         tableDf = db.getTable(tid)
     except:
-        await ctx.channel.send("I can't see a timetable with that ID.")
+        await ctx.channel.send(strings["cantsee"])
         return
     timestamps = list(map(
         lambda x: (dt.strptime(x+f" {dt.utcnow().year}_{('0' if len(str(dt.utcnow().month))<2 else '')+str(dt.utcnow().month)}_{('0' if len(str(dt.utcnow().day))<2 else '')+str(dt.utcnow().day)}",
@@ -644,7 +681,7 @@ Table ID must be a timetable's ID.",
         try:
             nexttime = min(list(filter(lambda x: x>dt.utcnow().timestamp(), timestamps)))
         except ValueError:
-            await ctx.channel.send("You don't have an event on your timetable today.")
+            await ctx.channel.send(strings["next"][10])
             return
         nextevent = tableDf.at[dt.utcnow().weekday(), dt.fromtimestamp(nexttime).strftime("t%H_%M")]
         if str(nextevent).lower() == "nope":
@@ -653,15 +690,15 @@ Table ID must be a timetable's ID.",
         else:
             break
     await ctx.channel.send(embed=discord.Embed(
-        title="Your Next Event Today",
-        description=f"Next event today on your timetable is: {nextevent}\n\
-It begins at {dt.fromtimestamp(nexttime).strftime('%H:%M.')} UTC\n\
-You have {int((nexttime-dt.utcnow().timestamp())//(60*60)) if (nexttime-dt.utcnow().timestamp())//(60*60) > 0 else ''} \
-{'hours, ' if (nexttime-dt.utcnow().timestamp())//(60*60)>1 else ''}\
-{'hour, ' if (nexttime-dt.utcnow().timestamp())//(60*60) == 1 else ''}\
+        title=strings["next"][1],
+        description=f"{strings['next'][2]} {nextevent}\n\
+{strings['next'][3]} {dt.fromtimestamp(nexttime).strftime('%H:%M.')} UTC\n\
+{strings['next'][4]} {int((nexttime-dt.utcnow().timestamp())//(60*60)) if (nexttime-dt.utcnow().timestamp())//(60*60) > 0 else ''} \
+{strings['next'][5]+', ' if (nexttime-dt.utcnow().timestamp())//(60*60)>1 else ''}\
+{strings['next'][6]+', ' if (nexttime-dt.utcnow().timestamp())//(60*60) == 1 else ''}\
 {int(((nexttime-dt.utcnow().timestamp())-((nexttime-dt.utcnow().timestamp())//(60*60)*60*60))//60)} \
-{'minutes' if ((nexttime-dt.utcnow().timestamp())-((nexttime-dt.utcnow().timestamp())//(60*60)))//60 > 1 else 'minute'}\
- before it begins.",
+{strings['next'][7] if ((nexttime-dt.utcnow().timestamp())-((nexttime-dt.utcnow().timestamp())//(60*60)))//60 > 1 else strings['next'][8]}\
+ {strings['next'][9]}.",
         colour=0xACB6C4))
 
 

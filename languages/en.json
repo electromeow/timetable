@@ -1,0 +1,176 @@
+{
+  "timetable": [
+    "Create a new timetable",
+    "Can you enter the times(in UTC) in your timetable seperated with commas? For example:\n`09:00,09:40,10:20`\nYou can write cancel the command anytime by writing 'cancel'.\nThere is an example usage of the command below ⬇️",
+    "Command has canceled due to timeout.",
+    ["cancel", "abort"],
+    "Command has canceled.",
+    "Command has canceled because I see some times which aren't in one of the formats below:\n**H:MM** | **HH:MM** | **H.MM** | **HH.MM**",
+    "Now you will enter the events on your timetable in order of times you entered for each day of the week.\nYou will pass \"nope\" for blank times. If you don't have any events on that day, you will pass a \"nope\".\nFirst enter the events that you have on mondays:",
+    "Enter the events that you have on tuesdays:",
+    "Enter the events that you have on wednesdays:",
+    "Enter the events that you have on thursdays:",
+    "Enter the events that you have on fridays:",
+    "Enter the events that you have on saturdays:",
+    "Enter the events that you have on sundays:",
+    "Mention or enter the ID of the channel for notifications:",
+    "I can't see a channel's mention or ID here. Please write again but this time properly:",
+    "I don't have the permission to access, send message this channel or to delete messages from this channel.\nTry with another channel or give me the permission to access and send messages to that channel, then try again:",
+    "Mention the people or roles to inform, they will be mentioned when an event has started\nYou can also make mentioning people off by sending a \"nope\":",
+    "Did you think that you are intelligent enough?",
+    "Lastly enter a password for your timetable that others can't change it. You can also send it as a spoiler. Message will be immediately deleted.",
+    "I don't have the permission to delete messages on this channel.",
+    "An error has occured. Error: {e}",
+    "Timetable {tableID} has successfully created. Its password is ||{password}||.\nWhen you want to see your timetable as an image, you can use the `show` command; and when you want to see how much time left until your next event, you can use the `next` command of the bot."
+  ],
+  "reminder": [
+    "Subcommands add/create:\nUsage: <prefix>reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format and in UTC/GMT timezone.\nDon't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.\n\nSubcommands remove/delete:\nUsage: <prefix>reminder remove/delete ID\nNote: There is no difference between delete and remove or add and create subcommands.",
+    "Usage: <prefix>reminder add/create time date channel name\nChannel should be a channel's mention.\nDate should be a valid date in DD/MM/YYYY format or 'today' or 'tomorrow'.\nTime should be a valid time in HH:MM format and in UTC/GMT timezone.\nDon't know your timezone by UTC? [Click here](https://www.timeanddate.com/time/map) to learn.",
+    "today",
+    "tomorrow",
+    "Did you think that you are intelligent enough?",
+    ["create", "add"],
+    "Reminder {event} with ID {remId} has successfully set to {date} {time}.\nIt will be announced at channel {channel}",
+    ["delete", "remove"],
+    "Usage: <prefix>reminder remove/delete ID\nID must be a valid reminder ID with 6 digits.",
+    "Reminder with ID {remId} has successfully removed.",
+    "I can't see a reminder with that ID.",
+    "There isn't a reminder command like that."
+  ],
+  "announcements": "Hey, it is the time of ",
+  "prefixforthisserver": "Hey! My prefix for this server is ",
+  "suggestwarning": "Usage: <prefix>suggest YourSuggestions",
+  "reportwarning": "Usage: <prefix>report YourBugReport",
+  "stats": [
+    "OS",
+    "Servers",
+    "Python Version",
+    "D.py Version",
+    "Uptime",
+    "Shards",
+    "Timetables",
+    "Active Reminders",
+    "Commands",
+    "CPU",
+    ["d, ", "h, ", "m"],
+    "Stats"
+  ],
+  "hereismytoken": "Here is my token:\n",
+  "suggestionsent": "Your suggestion has sent to bot's support server!",
+  "reportsent": "Your bug report has sent to bot's support server!",
+  "support": [
+    "Support",
+    "If you didn't understand how to use the bot, you can join our support server:\n[Join](https://discord.gg/btaGQ6zB6u)"
+  ],
+  "votetouse": [
+    "Vote to use this command!",
+    "[Click Here to Vote](https://top.gg/bot/789202881336311849/vote)"
+  ],
+  "covid": [
+    "Usage: <prefix>covid subcommand parameter\nLearn more using `<prefix>help covid`",
+    "top10",
+    "COVID-19 Top 10 Countries",
+    "Loc.",
+    "Countries",
+    "Total Cases",
+    "Source: [WHO](https://covid19.who.int)",
+    "Usage: <prefix>covid country country_name/2_letter_country_code\nYou can both use the country name or 2 letter country code(e.g. US)\nYou can shortly write co instead of country.",
+    ["country", "co", "global"],
+    "Please use <prefix>covid global",
+    "Can't find a country with that name or country code!",
+    "COVID-19 Stats for {country}",
+    "Global COVID-19 Stats",
+    "Total Cases",
+    "Daily Cases",
+    "Weekly Cases",
+    "Case Density",
+    "Total Deaths",
+    "Daily Deaths",
+    "Weekly Deaths",
+    "I can't see a command with that name. To learn about covid command's usage, use `<prefix>help covid` command.",
+    "Global COVID-19 Stats"
+  ],
+  "delete": [
+    "Usage: <prefix>delete TimetableID\nTimetable ID must be a timetable's ID.\nIf you didn't created your timetable, create one using <prefix>timetable",
+    "Timetable with ID {tid} has successfully deleted."
+  ],
+  "enterpassword": "Enter password for this timetable:",
+  "wrongpassword": "Wrong password!",
+  "changechannel": [
+    "Usage: <prefix>changechannel TimetableID Channel\nTimetable ID must be a timetable ID.\nIf you didn't created your timetable, create one using <prefix>timetable\nChannel must be a channel's mention or ID.\nBoth two parameters are required.",
+    "Channel of the timetable with ID {tid} successfully changed to <#{channelid}>"
+  ],
+  "changepassword": [
+    "Usage: <prefix>changepassword TimetableID\nTimetable ID must be a timetable's ID.\nIf you didn't created your timetable, create one using <prefix>timetable",
+    "Please enter the new password:",
+    "Password of the timetable with ID {tid} successfully changed."
+  ],
+  "changemention": [
+    "Usage: <prefix>changemention table_id mentions\nTable ID must be a timetable's ID.\nMentions should be a series of roles/users' mentions. You can make it also blank if you wish.",
+    "Mention of the timetable with the {tid} successfully changed to nothing. It will no longer mention people.",
+    "Mention of the timetable with ID {tid} successfully changed to {mention}"
+  ],
+  "cantsee": "I can't see a timetable with that ID.",
+  "download": "Usage: <prefix>download TimetableID\nTimetable ID must be a timetable's ID\nIf you didn't created your timetable, create one using <prefix>timetable",
+  "countdown": [
+    "Usage: <prefix>countdown x EventName\nx must be a number of seconds.\nEvent name should be a proper event name.",
+    "I can't wait for a NotANumber amount of seconds.\nYou are so intelligent, you should definitely become a bug hunter when you're an adult!",
+    "You can't countdown more than a day. Instead use reminders.",
+    "Hey <@!{author}> , it's time for {eventname}."
+  ],
+  "prefix": [
+    "Usage: <prefix>prefix NewPrefix",
+    "Prefix for this server is changed to: {pf}",
+    "I think you don't have the permission to do that. Pick that 'Manage Server' permission, then maybe."
+  ],
+  "serverinfo": [
+    "Text Channels",
+    "Voice Channels",
+    "Stage Channels",
+    "Rules Channel",
+    "Members",
+    "Created At",
+    "Server ID",
+    "Roles",
+    "Server Boost",
+    "Emojis",
+    "2FA",
+    "No Level",
+    "Level"
+  ],
+  "vote": [
+    "Loved Timetable? Then vote it to support!",
+    "Our heart would wish that you voted in both bot lists,\nbut your vote on top.gg would be enough.\n<:topgg:834421312994279535>  [top.gg](https://top.gg/bot/789202881336311849/vote)\n<:discordbotlist:834424137224814642>  [DiscordBotList](https://discordbotlist.com/bots/timetable/upvote)\n<:discordboats:834424137174614086>  [Discord Boats](https://discord.boats/bot/789202881336311849/vote)\n**We don't earn money from your votes!**"
+  ],
+  "invite": [
+    "Loved Timetable? Then invite it to other servers!",
+    "Invite link can be found at:\n<:topgg:834421312994279535>  [top.gg](https://top.gg/bot/789202881336311849)\n<:botsgg:834424137631006720>  [bots.gg](https://discord.bots.gg/bots/789202881336311849)\n<:discordbotlist:834424137224814642>  [DiscordBotList](https://discordbotlist.com/bots/timetable)\n<:discordboats:834424137174614086>  [Discord Boats](https://discord.boats/bot/789202881336311849)"
+  ],
+  "contribute": [
+    "Contribute",
+    "I heard that you have enough Python knowledge to improve this bot.\nIf I didn't hear wrong, then go to [my GitHub Repository](https://github.com/electromeow/timetable) .Fork, improve and submit a pull request.\nActually bot isn't deployed by that repository.\nBut I sync them with the private deployment repository.\nSo you can make sure that your improvements will be applied to actual bot.\nIf you are a person don't know enough Python and if you're a free rider, please don't copy-paste & host it. Because that's not easy to develop that huge code and hosting is a big problem even if you developed that.\nSo use the bot hosted by me instead of copying-pasting and running it."
+  ],
+  "days": [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ],
+  "show": ["Usage: <prefix>show TimetableID", "Timetable {tableid}:"],
+  "next": [
+    "Usage: <prefix>next table_id\nTable ID must be a timetable's ID.",
+    "Your Next Event Today",
+    "Next event today on your timetable is:",
+    "It begins at",
+    "You have",
+    "hours",
+    "hour",
+    "minutes",
+    "minute",
+    "before it begins",
+    "You don't have an event on your timetable today."
+  ]
+}

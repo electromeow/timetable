@@ -31,7 +31,7 @@ class Connection:
 
     def __init__(self):
         """Connects to the database."""
-        f = open("dbSecretInfo.json", "r")
+        f = open("./secret/dbSecretInfo.json", "r")
         dbSecretInfo = json.load(f)
         f.close()
         self.con = sql.connect(**dbSecretInfo)
@@ -39,7 +39,7 @@ class Connection:
 
     def getPrefixes(self):
         """Gets prefixes from SQL Database."""
-        self.cur.execute("SELECT * FROM prefixes")
+        self.cur.execute("SELECT svid, pf FROM prefixes")
         prefixes = self.cur.fetchall()
         return dict(prefixes)
 
@@ -55,13 +55,13 @@ class Connection:
         return resp[0][0]
 
 
-    def addPrefix(self, svid, pf):
+    def addServer(self, svid, pf, lang):
         """Adds a server with its prefix to database."""
         try:
-            self.cur.execute(f"INSERT INTO prefixes(svid, pf) VALUES ({svid},'{pf.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE)}')")
+            self.cur.execute(f"INSERT INTO prefixes(svid, pf, lang) VALUES ({svid},'{pf.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE)}', '{lang}')")
         except:
             self.refresh()
-            self.cur.execute(f"INSERT INTO prefixes(svid, pf) VALUES ({svid},'{pf.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE)}')")
+            self.cur.execute(f"INSERT INTO prefixes(svid, pf, lang) VALUES ({svid},'{pf.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE)}', '{lang}')")
         self.con.commit()
 
 
@@ -75,7 +75,7 @@ class Connection:
         self.con.commit()
 
 
-    def delPrefix(self, svid):
+    def delServer(self, svid):
         """Deletes a server from prefixes table in the database."""
         try:
             self.cur.execute(f"DELETE FROM prefixes WHERE svid = {svid}")
@@ -84,6 +84,24 @@ class Connection:
             self.cur.execute(f"DELETE FROM prefixes WHERE svid = {svid}")
         self.con.commit()
 
+    def changeLang(self, svid, lang):
+        """Changes the language preference for the server."""
+        try:
+            self.cur.execute(f"UPDATE prefixes SET lang = '{lang}' WHERE svid = {svid}")
+        except:
+            self.refresh()
+            self.cur.execute(f"UPDATE prefixes SET lang = '{lang}' WHERE svid = {svid}")
+        self.con.commit()
+
+    def getLang(self, svid):
+        """Returns the language for that server."""
+        try:
+            self.cur.execute(f"SELECT lang FROM prefixes WHERE svid = {svid}")
+        except:
+            self.refresh()
+            self.cur.execute(f"SELECT lang FROM prefixes WHERE svid = {svid}")
+        resp = self.cur.fetchall()
+        return resp[0][0]
 
     def getTables(self):
         """Gets all the tables from the database and converts them to Pandas DataFrames."""
@@ -223,7 +241,7 @@ VALUES ({randomid},{channelid},'{password.replace(SINGLEQUOTE,ESCAPEDSINGLEQUOTE
             return False
     def refresh(self):
         self.con.close()
-        f = open("dbSecretInfo.json", "r")
+        f = open("./secret/dbSecretInfo.json", "r")
         dbSecretInfo = json.load(f)
         f.close()
         self.con = sql.connect(**dbSecretInfo)

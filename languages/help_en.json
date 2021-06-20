@@ -76,11 +76,11 @@
   ],
   "suggest": [
     "Suggest",
-    "**Usage:** <prefix>suggest your_suggestions\nSends your suggestions to a specific channel at bot's support server that bot's developer can see."
+    "**Usage:** <prefix>suggest YourSuggestions\nSends your suggestions to a specific channel at bot's support server that bot's developer can see."
   ],
   "report": [
     "Report",
-    "**Usage:** <prefix>report your_bug_report\nA command to report bugs. It sends your bug report to a specific channel at bot's support server that bots' developer can see."
+    "**Usage:** <prefix>report YourBugReport\nA command to report bugs. It sends your bug report to a specific channel at bot's support server that bots' developer can see."
   ],
   "covid": [
     "COVID",
@@ -89,5 +89,6 @@
   "serverinfo": [
     "Server Info",
     "**Usage:** <prefix>serverinfo\nShows the statictics and information about the server."
-  ]
+  ],
+  "thereisnocommand": "There isn't a command with that name."
 }
